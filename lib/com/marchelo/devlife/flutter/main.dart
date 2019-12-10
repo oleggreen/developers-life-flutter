@@ -1,4 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+
+import 'model/PostItem.dart';
+import 'model/Response.dart';
+
+import 'package:flutter/services.dart' show rootBundle;
 
 void main() => runApp(MyApp());
 
@@ -18,7 +25,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.orange,
       ),
       home: MyHomePage(title: 'Developers Lite'),
     );
@@ -45,24 +52,37 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  final List<String> entries = <String>[
-    "https://24tv.ua/resources/photos/news/201912/1243548_10326621.gif",
-    "https://static.devli.ru/public/images/gifs/201907/d2dfb819-f081-4a2b-928a-e02859ac9daf.gif",
-    "https://static.devli.ru/public/images/gifs/201303/65360af7-50cb-471a-8745-263ee1acd4f7.gif",
-    "https://static.devli.ru/public/images/gifs/201303/84292b0d-2272-4109-bd4c-80f45f2914f5.gif",
-    "https://static.devli.ru/public/images/gifs/201303/02926671-82c7-4cf5-a011-4440422458c9.gif",
-    "https://static.devli.ru/public/images/gifs/201303/48c8de93-b846-4701-8254-536e3b1c7b2f.gif",
-    "https://static.devli.ru/public/images/gifs/201303/c9f2e8b9-3cd9-4ffe-a5dc-5745b51865dc.gif",
-    "https://static.devli.ru/public/images/gifs/201303/b39235fc-3154-4097-a394-dd74aecd4354.gif",
-    "https://static.devli.ru/public/images/gifs/201304/be5f82f1-3af8-44c0-90d3-bbe2027462c3.gif",
-    "https://static.devli.ru/public/images/gifs/201304/b4447fc6-4fcf-4bec-a502-3ebe025a4367.gif",
-    "https://static.devli.ru/public/images/gifs/201303/a5ae9741-c257-41dd-837d-a744ebc1fc64.gif",
-    "https://static.devli.ru/public/images/gifs/201303/313d3f40-66ea-4eca-9252-b8f2fe2ae88c.gif",
-    "https://static.devli.ru/public/images/gifs/201303/b8ad9589-f292-4a9a-87ab-0bb73dc09435.gif",
-    "https://static.devli.ru/public/images/gifs/201304/cf94ce5f-ab59-4858-b447-9e5c8e5dbd2c.gif",
-    "https://static.devli.ru/public/images/gifs/201303/1f336fe5-35b2-47fd-8a9d-6cb98314ea76.gif"
-  ];
   final List<int> colorCodes = <int>[600, 500, 100];
+
+  /// Assumes the given path is a text-file-asset.
+  Future<String> getFileData(String path) async {
+    return await rootBundle.loadString(path);
+  }
+
+  Future<Response> getData() async {
+//    Response list;
+//    String link =
+//        "https://developerslife.ru/top/1?json=true";
+//    var res = await http
+//        .get(Uri.encodeFull(link), headers: {"Accept": "application/json"});
+//    print(res.body);
+//    if (res.statusCode == 200) {
+//      var data = json.decode(res.body);
+//      var rest = data["articles"] as List;
+//      print(rest);
+//      list = rest.map<Article>((json) => Article.fromJson(json)).toList();
+//    }
+//    print("List Size: ${list.length}");
+//    return list;
+
+    String dataString = await getFileData("assets/best_of_all_time.json");
+    var data = json.decode(dataString);
+
+    var response = Response.fromJsonMap(data);
+    response.result.forEach((postItem) => print(postItem.gifURL));
+    print("result: ${response.toString()}");
+    return response;
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -77,6 +97,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    getData();
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -92,40 +114,13 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: entries.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                  height: 250,
-                  color: Colors.amber[colorCodes[index % colorCodes.length]],
-                  child: Image.network(
-                    entries[index],
-                    frameBuilder: (BuildContext context, Widget child,
-                        int frame, bool wasSynchronouslyLoaded) {
-                      return Padding(
-                        padding: EdgeInsets.all(28.0),
-                        child: child,
-                      );
-                    },
-                    loadingBuilder: (BuildContext context, Widget child,
-                        ImageChunkEvent loadingProgress) {
-                      if (loadingProgress == null)
-                        return child;
-
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes
-                              : null,
-                        ),
-                      );
-                    },
-                  ),
-              );
-            }
-        ),
+        child: FutureBuilder(
+            future: getData(),
+            builder: (context, snapshot) {
+              return snapshot.data != null
+                  ? listViewWidget(snapshot.data)
+                  : Center(child: CircularProgressIndicator());
+            }),
 //        child: Column(
 //          // Column is also a layout widget. It takes a list of children and
 //          // arranges them vertically. By default, it sizes itself to fit its
@@ -176,11 +171,54 @@ class _MyHomePageState extends State<MyHomePage> {
 //          ],
 //        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add_call),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  ListView listViewWidget(Response response) {
+    List<PostItem> items = response.result;
+
+    return ListView.separated(
+        padding: const EdgeInsets.all(8),
+        itemCount: items.length,
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+              height: 250,
+              color: Colors.amber[colorCodes[index % colorCodes.length]],
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      items[index].description,
+                    ),
+                    Image.network(
+                      items[index].gifURL,
+                      frameBuilder: (BuildContext context, Widget child,
+                          int frame, bool wasSynchronouslyLoaded) {
+                        return Padding(
+                          padding: EdgeInsets.all(28.0),
+                          child: child,
+                        );
+                      },
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent loadingProgress) {
+                        if (loadingProgress == null)
+                          return child;
+
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
+                  ]
+              )
+          );
+        }
     );
   }
 }

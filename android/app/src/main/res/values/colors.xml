@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#F5971A</color>
+    <color name="colorPrimaryDark">#ED7E1A</color>
+    <color name="colorPrimaryVeryDark">#ce6100</color>
+    <color name="colorPrimaryPale">#F0C594</color>
+    <color name="colorPrimaryVeryPale">#ffd3a0</color>
+    <color name="colorPrimaryDarkHalfTransparent">#88ED7E1A</color>
+
+    <color name="colorSecondary">#B6CAD7</color>
+    <color name="colorSecondaryDark">#56698E</color>
+
+    <color name="colorBackground">#D7D8D8</color>
+
+    <color name="emptyViewColor">#F0C594</color>
+
+    <color name="gray_color">#717171</color>
+    <color name="light_gray_color">#919191</color>
+    <color name="very_light_gray_color">#c1c1c1</color>
+
+    <drawable name="favorites_list_selector_checked_color">#88ffffff</drawable>
+    <drawable name="favorites_list_selector_pressed_color">#44666666</drawable>
+    <drawable name="favorites_list_selector_normal_color">#00000000</drawable>
+</resources>
