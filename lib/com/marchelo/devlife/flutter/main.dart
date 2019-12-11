@@ -112,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
           color: Colors.transparent,
         ),
         itemBuilder: (BuildContext context, int index) {
+          var curTheme = Theme.of(context);
           return Container(
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -196,6 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             Expanded(
                               child: Column(
                                   mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Text(
@@ -204,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       overflow: TextOverflow.fade,
                                       textAlign: TextAlign.start,
                                       style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           color: Color(0xff949494)
                                       ),
                                     ),
@@ -214,63 +216,48 @@ class _MyHomePageState extends State<MyHomePage> {
                                       textAlign: TextAlign.start,
                                       softWrap: false,
                                       style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           color: Color(0xff949494)
                                       ),
                                     ),
                                   ]
                               ),
                             ),
-                            Row(
-                                children: <Widget>[
-                                  Container(
-                                    decoration: BoxDecoration(color: Colors.green),
-                                    child: IconButton(
-                                      onPressed: () => print("link"),
-                                      icon: Icon(Icons.insert_link),
+                            Container(
+                              decoration: BoxDecoration(
+                                  color: curTheme.primaryColor,
+                              ),
+                              padding: EdgeInsets.all(2),
+                              child: Row(
+                                  children: <Widget>[
+                                    Container(
+                                      margin: EdgeInsets.only(right: 1),
+                                      decoration: BoxDecoration(
+                                          color: curTheme.primaryColorLight
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () => print("link"),
+                                        icon: Icon(
+                                            Icons.insert_link,
+                                            color: curTheme.primaryColor
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(color: Colors.yellow),
-                                    child: IconButton(
-                                      onPressed: () => print("share"),
-                                      icon: Icon(Icons.share),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 1),
+                                      decoration: BoxDecoration(
+                                        color: curTheme.primaryColorLight,
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () => print("share"),
+                                        icon: Icon(
+                                            Icons.share,
+                                            color: curTheme.primaryColor
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ]
-                            ),
-//                            Column(
-//                                mainAxisSize: MainAxisSize.min,
-//                                crossAxisAlignment: CrossAxisAlignment.end,
-//                                children: <Widget>[
-//                                  new Text(
-//                                    "New Column",
-//                                    textAlign: TextAlign.start,
-//                                    style: TextStyle(
-//                                        fontSize: 16,
-//                                        color: Color(0xff626262)
-//                                    ),
-//                                  ),
-//                                ]
-//                            ),
-//                            Flexible(
-//                                child: new Text(
-//                                    items[index].description,
-//                                    textAlign: TextAlign.start,
-//                                    style: TextStyle(
-//                                        fontSize: 16,
-//                                        color: Color(0xff626262)
-//                                    ),
-//                                ),
-//                            ),
-//                            Text(
-//                              items[index].description,
-//                              textAlign: TextAlign.start,
-//                              style: TextStyle(
-//                                  fontSize: 16,
-//                                  color: Color(0xff626262)
-//                              ),
-//                            ),
+                                  ]
+                              ),),
                           ]
                       )
                     ),
