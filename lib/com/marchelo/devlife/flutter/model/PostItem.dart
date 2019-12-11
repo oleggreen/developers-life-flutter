@@ -1,4 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
 
+part 'PostItem.g.dart';
+
+@JsonSerializable()
 class PostItem {
 
   int id;
@@ -19,7 +23,30 @@ class PostItem {
   int fileSize;
   bool canVote;
 
-	PostItem.fromJsonMap(Map<String, dynamic> map): 
+	PostItem({
+		this.id,
+		this.description,
+		this.votes,
+		this.author,
+		this.date,
+		this.gifURL,
+		this.gifSize,
+		this.previewURL,
+		this.videoURL,
+		this.videoPath,
+		this.videoSize,
+		this.type,
+		this.width,
+		this.height,
+		this.commentsCount,
+		this.fileSize,
+		this.canVote
+	});
+
+	factory PostItem.fromJson(Map<String, dynamic> json) => _$PostItemFromJson(json);
+	Map<String, dynamic> toJson() => _$PostItemToJson(this);
+
+	PostItem.fromJsonMap(Map<String, dynamic> map):
 		id = map["id"],
 		description = map["description"],
 		votes = map["votes"],
@@ -37,26 +64,4 @@ class PostItem {
 		commentsCount = map["commentsCount"],
 		fileSize = map["fileSize"],
 		canVote = map["canVote"];
-
-	Map<String, dynamic> toJson() {
-		final Map<String, dynamic> data = new Map<String, dynamic>();
-		data['id'] = id;
-		data['description'] = description;
-		data['votes'] = votes;
-		data['author'] = author;
-		data['date'] = date;
-		data['gifURL'] = gifURL;
-		data['gifSize'] = gifSize;
-		data['previewURL'] = previewURL;
-		data['videoURL'] = videoURL;
-		data['videoPath'] = videoPath;
-		data['videoSize'] = videoSize;
-		data['type'] = type;
-		data['width'] = width;
-		data['height'] = height;
-		data['commentsCount'] = commentsCount;
-		data['fileSize'] = fileSize;
-		data['canVote'] = canVote;
-		return data;
-	}
 }

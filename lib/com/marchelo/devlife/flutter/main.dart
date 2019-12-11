@@ -1,11 +1,16 @@
-import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
-
-import 'model/PostItem.dart';
-import 'model/Response.dart';
+import 'package:dio/dio.dart';
 
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:logger/logger.dart';
+
+import 'RestService.dart';
+import 'model/PostItem.dart';
+import 'model/PostResponse.dart';
+
+final logger = Logger();
 
 void main() => runApp(MyApp());
 
@@ -51,7 +56,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   final List<int> colorCodes = <int>[600, 500, 100];
 
   /// Assumes the given path is a text-file-asset.
@@ -59,45 +63,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return await rootBundle.loadString(path);
   }
 
-  Future<Response> getData() async {
-//    Response list;
-//    String link =
-//        "https://developerslife.ru/top/1?json=true";
-//    var res = await http
-//        .get(Uri.encodeFull(link), headers: {"Accept": "application/json"});
-//    print(res.body);
-//    if (res.statusCode == 200) {
-//      var data = json.decode(res.body);
-//      var rest = data["articles"] as List;
-//      print(rest);
-//      list = rest.map<Article>((json) => Article.fromJson(json)).toList();
-//    }
-//    print("List Size: ${list.length}");
-//    return list;
+  Future<PostResponse> getData() async {
+    final dio = Dio();
+    final client = RestClient(dio);
+    var response = await client.getPosts(RestClient.LATEST_CATEGORY, 0);
 
-    String dataString = await getFileData("assets/best_of_all_time.json");
-    var data = json.decode(dataString);
-
-    var response = Response.fromJsonMap(data);
-    response.result.forEach((postItem) => print(postItem.gifURL));
     print("result: ${response.toString()}");
     return response;
   }
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-
     getData();
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -106,119 +82,199 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: FutureBuilder(
-            future: getData(),
-            builder: (context, snapshot) {
-              return snapshot.data != null
-                  ? listViewWidget(snapshot.data)
-                  : Center(child: CircularProgressIndicator());
-            }),
-//        child: Column(
-//          // Column is also a layout widget. It takes a list of children and
-//          // arranges them vertically. By default, it sizes itself to fit its
-//          // children horizontally, and tries to be as tall as its parent.
-//          //
-//          // Invoke "debug painting" (press "p" in the console, choose the
-//          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-//          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-//          // to see the wireframe for each widget.
-//          //
-//          // Column has various properties to control how it sizes itself and
-//          // how it positions its children. Here we use mainAxisAlignment to
-//          // center the children vertically; the main axis here is the vertical
-//          // axis because Columns are vertical (the cross axis would be
-//          // horizontal).
-//          mainAxisAlignment: MainAxisAlignment.center,
-////          mainAxisSize: MainAxisSize.max,
-//          children: <Widget>[
-//            //Text(
-//            //  'You have pushed the button this many times:',
-//            //),
-//            //Text(
-//            //  'count: $_counter',
-//            //  style: Theme.of(context).textTheme.display2,
-//            //),
-////            Image.network(
-////              "https://24tv.ua/resources/photos/news/201912/1243548_10326621.gif",
-////              frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
-////                return Padding(
-////                  padding: EdgeInsets.all(28.0),
-////                  child: child,
-////                );
-////              },
-////              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-////                if (loadingProgress == null)
-////                  return child;
-////
-////                return Center(
-////                  child: CircularProgressIndicator(
-////                    value: loadingProgress.expectedTotalBytes != null
-////                        ? loadingProgress.cumulativeBytesLoaded /
-////                        loadingProgress.expectedTotalBytes
-////                        : null,
-////                  ),
-////                );
-////              },
-////            ),
-//          ],
-//        ),
-      ),
-    );
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
+        ),
+        body: Container(
+          color: Color(0xffcfcfcf),
+          child: Center(
+            // Center is a layout widget. It takes a single child and positions it
+            // in the middle of the parent.
+            child: FutureBuilder(
+                future: getData(),
+                builder: (context, snapshot) {
+                  return snapshot.data != null ? listViewWidget(snapshot.data) : Center(child: CircularProgressIndicator());
+                }),
+          ),
+        ));
   }
 
-  ListView listViewWidget(Response response) {
+  ListView listViewWidget(PostResponse response) {
     List<PostItem> items = response.result;
 
     return ListView.separated(
         padding: const EdgeInsets.all(8),
         itemCount: items.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
+        separatorBuilder: (BuildContext context, int index) => Divider(
+          height: 10,
+          color: Colors.transparent,
+        ),
         itemBuilder: (BuildContext context, int index) {
           return Container(
-              height: 250,
-              color: Colors.amber[colorCodes[index % colorCodes.length]],
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xffacacac),
+                      blurRadius: 1.0, // has the effect of softening the shadow
+                      spreadRadius: 1.0, // has the effect of extending the shadow
+                      offset: Offset(
+                        0.0, // horizontal, move right 10
+                        0.0, // vertical, move down 10
+                      ),
+                    )
+                  ],
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0)),
               child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Text(
                       items[index].description,
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Color(0xff626262)
+                      ),
                     ),
-                    Image.network(
-                      items[index].gifURL,
-                      frameBuilder: (BuildContext context, Widget child,
-                          int frame, bool wasSynchronouslyLoaded) {
-                        return Padding(
-                          padding: EdgeInsets.all(28.0),
-                          child: child,
-                        );
-                      },
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent loadingProgress) {
-                        if (loadingProgress == null)
-                          return child;
-
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes
-                                : null,
+                    Container(
+                      margin: EdgeInsets.only(top: 5),
+                      decoration: BoxDecoration(color: Colors.black),
+                      child: Stack(
+                        alignment: AlignmentDirectional.center,
+                        fit: StackFit.loose,
+                        children: <Widget>[
+                          Image.network(
+                            items[index].previewURL,
+                            height: 216,
+                            frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
+                              return Padding(
+                                padding: EdgeInsets.all(2.0),
+                                child: child,
+                              );
+                            },
                           ),
-                        );
-                      },
+                          Image.network(
+                            items[index].gifURL,
+                            height: 216,
+                            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
+                              if (loadingProgress == null)
+                                return Padding(
+                                  padding: EdgeInsets.all(2.0),
+                                  child: child,
+                                );
+
+                              return Container(
+                                height: 220,
+                                alignment: Alignment.topCenter,
+                                child:Container(
+                                  height: 3.0,
+                                  child: LinearProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        ],
+                      ),
                     ),
-                  ]
-              )
-          );
-        }
-    );
+
+                    Container(
+                      height: 40,
+                      margin: EdgeInsets.only(top: 5),
+                      child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Expanded(
+                              child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      "Author: " + items[index].author + items[index].author + items[index].author,
+                                      softWrap: false,
+                                      overflow: TextOverflow.fade,
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Color(0xff949494)
+                                      ),
+                                    ),
+                                    Text(
+                                      "Rating: " + items[index].votes.toString(),
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.start,
+                                      softWrap: false,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Color(0xff949494)
+                                      ),
+                                    ),
+                                  ]
+                              ),
+                            ),
+                            Row(
+                                children: <Widget>[
+                                  Container(
+                                    decoration: BoxDecoration(color: Colors.green),
+                                    child: IconButton(
+                                      onPressed: () => print("link"),
+                                      icon: Icon(Icons.insert_link),
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(color: Colors.yellow),
+                                    child: IconButton(
+                                      onPressed: () => print("share"),
+                                      icon: Icon(Icons.share),
+                                    ),
+                                  ),
+                                ]
+                            ),
+//                            Column(
+//                                mainAxisSize: MainAxisSize.min,
+//                                crossAxisAlignment: CrossAxisAlignment.end,
+//                                children: <Widget>[
+//                                  new Text(
+//                                    "New Column",
+//                                    textAlign: TextAlign.start,
+//                                    style: TextStyle(
+//                                        fontSize: 16,
+//                                        color: Color(0xff626262)
+//                                    ),
+//                                  ),
+//                                ]
+//                            ),
+//                            Flexible(
+//                                child: new Text(
+//                                    items[index].description,
+//                                    textAlign: TextAlign.start,
+//                                    style: TextStyle(
+//                                        fontSize: 16,
+//                                        color: Color(0xff626262)
+//                                    ),
+//                                ),
+//                            ),
+//                            Text(
+//                              items[index].description,
+//                              textAlign: TextAlign.start,
+//                              style: TextStyle(
+//                                  fontSize: 16,
+//                                  color: Color(0xff626262)
+//                              ),
+//                            ),
+                          ]
+                      )
+                    ),
+                  ]));
+        });
   }
 }
