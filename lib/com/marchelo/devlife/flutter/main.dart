@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -55,24 +56,29 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+/// Assumes the given path is a text-file-asset.
+Future<String> getFileData(String path) async {
+  return await rootBundle.loadString(path);
+}
+
+Future<Tuple2<int, PostResponse>> getData(String category, int pageNumber) async {
+  print("getData: category=" + category + ", page=" + pageNumber.toString() );
+
+  final dio = Dio();
+  final client = RestClient(dio);
+  var response = await client.getPosts(category, pageNumber);
+
+  print("getData:result: ${response.result.toString()}");
+  return Tuple2(pageNumber, response);
+}
+
 class _MyHomePageState extends State<MyHomePage> {
 
-  /// Assumes the given path is a text-file-asset.
-  Future<String> getFileData(String path) async {
-    return await rootBundle.loadString(path);
-  }
+  var selectedCategory = RestClient.LATEST_CATEGORY;
 
-  Future<Tuple2<int, PostResponse>> getData(int pageNumber) async {
-
-//    Fluttertoast.showToast(msg: "loading page: " + pageNumber.toString());
-    print("getData: page=" + pageNumber.toString());
-
-    final dio = Dio();
-    final client = RestClient(dio);
-    var response = await client.getPosts(RestClient.LATEST_CATEGORY, pageNumber);
-
-    print("result: ${response.toString()}");
-    return Tuple2(pageNumber, response);
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
   }
 
   @override
@@ -87,7 +93,53 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
+          title: Text(selectedCategory),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Image.asset('assets/images/ic_launcher.png'),
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                ),
+              ),
+              ListTile(
+                title: Text('Latest'),
+                trailing: Icon(Icons.arrow_forward),
+                onTap: () {
+                  Fluttertoast.showToast(msg: "Selected: Latest");
+                  Navigator.pop(context);
+                  setState(() {
+                    selectedCategory = RestClient.LATEST_CATEGORY;
+                  });
+                },
+              ),
+              ListTile(
+                title: Text('Best'),
+                trailing: Icon(Icons.arrow_forward),
+                onTap: () {
+                  Fluttertoast.showToast(msg: "Selected: Best");
+                  Navigator.pop(context);
+                  setState(() {
+                    selectedCategory = RestClient.TOP_CATEGORY;
+                  });
+                },
+              ),
+              ListTile(
+                title: Text('Hot'),
+                trailing: Icon(Icons.arrow_forward),
+                onTap: () {
+                  Fluttertoast.showToast(msg: "Selected: Hot");
+                  Navigator.pop(context);
+                  setState(() {
+                    selectedCategory = RestClient.HOT_CATEGORY;
+                  });
+                },
+              ),
+            ],
+          ),
         ),
         body: Container(
           color: Color(0xffcfcfcf),
@@ -95,71 +147,72 @@ class _MyHomePageState extends State<MyHomePage> {
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: FutureBuilder(
-                future: getData(0),
+                future: getData(selectedCategory, 0),
                 builder: (context, snapshot) {
                   var resultTuple = snapshot.data;
                   if (resultTuple == null) {
+                    print("rebuilding_list. data is null");
                     return Center(child: CircularProgressIndicator());
 
                   } else {
                     var response = resultTuple.item2;
                     var items = List<PostItem>();
                     items.addAll(response.result);
-                    return ChildWidget(this, items);
+                    print("rebuilding_list. " + items.toString());
+                    return PostListWidget(this, selectedCategory, items);
                   }
                 }),
           ),
         ));
   }
-
 }
 
-class ChildWidget extends StatefulWidget {
-
-  final _MyHomePageState parent;
-  final List<PostItem> initialItems;
-
-  ChildWidget(this.parent, this.initialItems);
-
-  @override
-  State<StatefulWidget> createState() => _ChildWidgetState(parent, initialItems);
-}
-
-class _ChildWidgetState extends State<ChildWidget> {
-
-  _MyHomePageState parent;//TODO remove
-
-  _ChildWidgetState(this.parent, this.items);
+class PostListWidget extends StatefulWidget {
 
   static const int ITEMS_PER_PAGE = 5;
-  var items = List<PostItem>();
+  final List<PostItem> items;
+  final _MyHomePageState parent;
+  final String selectedCategory;
+
+  PostListWidget(this.parent, this.selectedCategory, this.items);
+
+  @override
+  State<StatefulWidget> createState() => _PostListWidgetState();
+}
+
+class _PostListWidgetState extends State<PostListWidget> {
 
   void loadMore() {
     setState(() {
-
-      int pageToLoad = items.length ~/ ITEMS_PER_PAGE;
-      parent.getData(pageToLoad).then((value) {
+      int pageToLoad = widget.items.length ~/ PostListWidget.ITEMS_PER_PAGE;
+      getData(widget.selectedCategory, pageToLoad).then((value) {
         var pageNumberLoaded = value.item1;
         var pageItemsLoaded = value.item2;
 
-        var prevList = this.items;
-        items = List<PostItem>();
+        var newList = List<PostItem>();
+        newList.addAll(widget.items);
 
-        items.addAll(prevList.getRange(0, min(prevList.length, pageNumberLoaded * ITEMS_PER_PAGE)));
-        items.addAll(pageItemsLoaded.result);
+        newList.addAll(widget.items.getRange(0, min(widget.items.length, pageNumberLoaded * PostListWidget.ITEMS_PER_PAGE)));
+        newList.addAll(pageItemsLoaded.result);
+
+        widget.items.clear();
+        widget.items.addAll(newList);
 
       }, onError: (error) {
         print(error);
       });
+
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    print("_PostListWidgetState.build: " + widget.selectedCategory + " " + widget.items.toString());
+
     return NotificationListener<ScrollNotification>(
       // ignore: missing_return
         onNotification: (ScrollNotification scrollInfo) {
-          print("scrollInfo: [" + scrollInfo.metrics.pixels.toString() + " : " + scrollInfo.metrics.maxScrollExtent.toString() + "]");
+//          print("scrollInfo: [" + scrollInfo.metrics.pixels.toString() + " : " + scrollInfo.metrics.maxScrollExtent.toString() + "]");
           if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 500) {
             loadMore();
           }
@@ -167,19 +220,19 @@ class _ChildWidgetState extends State<ChildWidget> {
 
         child: ListView.separated(
             padding: const EdgeInsets.all(8),
-            itemCount: items.length + 1,
+            itemCount: widget.items.length + 1,
             separatorBuilder: (BuildContext context, int index) => Divider(
-              height: 10,
+              height: 2,
               color: Colors.transparent,
             ),
             itemBuilder: (BuildContext context, int index) {
 
-              if (index == items.length) {
+              if (index == widget.items.length) {
                 return Center(child: CircularProgressIndicator());
 
               } else {
                 var curTheme = Theme.of(context);
-                var postItem = items[index];
+                var postItem = widget.items[index];
 
                 return buildListPostWidget(postItem, curTheme);
               }
@@ -187,23 +240,25 @@ class _ChildWidgetState extends State<ChildWidget> {
     );
   }
 
-  Container buildListPostWidget(PostItem postItem, ThemeData curTheme) {
-    return Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xffacacac),
-                        blurRadius: 1.0, // has the effect of softening the shadow
-                        spreadRadius: 1.0, // has the effect of extending the shadow
-                        offset: Offset(
-                          0.0, // horizontal, move right 10
-                          0.0, // vertical, move down 10
-                        ),
-                      )
-                    ],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0)),
+  Widget buildListPostWidget(PostItem postItem, ThemeData curTheme) {
+    return Card(
+      elevation: 2,
+      child: Container(
+                padding: EdgeInsets.symmetric(vertical: 7, horizontal: 10),
+//                decoration: BoxDecoration(
+//                    boxShadow: [
+//                      BoxShadow(
+//                        color: Color(0xffacacac),
+//                        blurRadius: 1.0, // has the effect of softening the shadow
+//                        spreadRadius: 1.0, // has the effect of extending the shadow
+//                        offset: Offset(
+//                          0.0, // horizontal, move right 10
+//                          0.0, // vertical, move down 10
+//                        ),
+//                      )
+//                    ],
+//                    color: Colors.white,
+//                    borderRadius: BorderRadius.circular(10.0)),
 
                 child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -302,6 +357,7 @@ class _ChildWidgetState extends State<ChildWidget> {
                                 Container(
                                   decoration: BoxDecoration(
                                     color: curTheme.primaryColor,
+                                    borderRadius: BorderRadius.only(topLeft: Radius.circular(7), bottomRight: Radius.circular(7))
                                   ),
                                   padding: EdgeInsets.all(2),
                                   child: Row(
@@ -310,9 +366,11 @@ class _ChildWidgetState extends State<ChildWidget> {
                                         Container(
                                           margin: EdgeInsets.only(right: 1),
                                           decoration: BoxDecoration(
-                                              color: curTheme.primaryColorLight
+                                              color: curTheme.primaryColorLight,
+                                              borderRadius: BorderRadius.only(topLeft: Radius.circular(5))
                                           ),
                                           child: IconButton(
+                                            padding: EdgeInsets.zero,
                                             onPressed: () => Share.share("https://developerslife.ru/" + postItem.id.toString()),
                                             icon: Icon(
                                                 Icons.insert_link,
@@ -320,12 +378,17 @@ class _ChildWidgetState extends State<ChildWidget> {
                                             ),
                                           ),
                                         ),
-                                        Container(
+//                                        ShareButtonWidget(postItem.gifURL)
+                                        Theme.of(context).platform == TargetPlatform.iOS
+                                            ? Container()
+                                            : Container(
                                           margin: EdgeInsets.only(left: 1),
                                           decoration: BoxDecoration(
-                                            color: curTheme.primaryColorLight,
+                                              color: curTheme.primaryColorLight,
+                                              borderRadius: BorderRadius.only(bottomRight: Radius.circular(5))
                                           ),
                                           child: IconButton(
+                                            padding: EdgeInsets.zero,
                                             onPressed: () => Share.share(postItem.gifURL),
                                             icon: Icon(
                                                 Icons.share,
@@ -338,6 +401,81 @@ class _ChildWidgetState extends State<ChildWidget> {
                               ]
                           )
                       ),
-                    ]));
+                    ])));
+  }
+}
+
+class ShareButtonWidget extends StatefulWidget {
+
+  final String textToShare;
+
+  ShareButtonWidget(this.textToShare);
+
+  @override
+  State<StatefulWidget> createState() => _ShareButtonWidgetState(textToShare);
+}
+
+class _ShareButtonWidgetState extends State<ShareButtonWidget> {
+
+  Color _myColor = Colors.green;
+
+  String textToShare;
+
+  _ShareButtonWidgetState(this.textToShare);
+
+  @override
+  Widget build(BuildContext context) {
+    var curTheme = Theme.of(context);
+
+    return new GestureDetector(
+        child: Container(
+            margin: EdgeInsets.only(left: 1),
+            decoration: BoxDecoration(
+              color: _myColor,
+            ),
+            child: IconButton(
+              onPressed: () => {},//Share.share(textToShare),
+              icon: Icon(
+                  Icons.share,
+                  color: curTheme.primaryColor
+              ),
+            ),
+        ),
+        onTapDown: (tapDownDetails) {
+          print("Tap: onTapDown");
+          setState(() {
+            _myColor = Colors.white;
+          });
+        },
+        onTapUp: (tapUpDetails) {
+          print("Tap: onTapUp");
+          setState(() {
+            _myColor = curTheme.primaryColorLight;
+          });
+        },
+//        onTap: () {
+//          setState(() {
+//            if (_myColor == Colors.green) {
+//              _myColor = Colors.orange;
+//            }
+//            else {
+//              _myColor = Colors.green;
+//            }
+//          });
+//        }
+    );
+//        return Container(
+//      margin: EdgeInsets.only(left: 1),
+//      decoration: BoxDecoration(
+//        color: curTheme.primaryColorLight,
+//      ),
+//      child: IconButton(
+//        onPressed: () => Share.share(postItem.gifURL),
+//        icon: Icon(
+//            Icons.share,
+//            color: curTheme.primaryColor
+//        ),
+//      ),
+//    );
   }
 }

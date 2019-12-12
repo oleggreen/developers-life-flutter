@@ -64,4 +64,11 @@ class PostItem {
 		commentsCount = map["commentsCount"],
 		fileSize = map["fileSize"],
 		canVote = map["canVote"];
+
+	@override
+	String toString() {
+		return 'PostItem{id: $id}';
+	}
+
+
 }
