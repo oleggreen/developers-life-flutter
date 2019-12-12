@@ -1,16 +1,15 @@
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:share/share.dart';
+import 'package:tuple/tuple.dart';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:logger/logger.dart';
 
 import 'RestService.dart';
 import 'model/PostItem.dart';
 import 'model/PostResponse.dart';
-
-final logger = Logger();
 
 void main() => runApp(MyApp());
 
@@ -63,18 +62,20 @@ class _MyHomePageState extends State<MyHomePage> {
     return await rootBundle.loadString(path);
   }
 
-  Future<PostResponse> getData() async {
+  Future<Tuple2<int, PostResponse>> getData(int pageNumber) async {
+
+    print("getData: page=" + pageNumber.toString());
+
     final dio = Dio();
     final client = RestClient(dio);
-    var response = await client.getPosts(RestClient.LATEST_CATEGORY, 0);
+    var response = await client.getPosts(RestClient.LATEST_CATEGORY, pageNumber);
 
     print("result: ${response.toString()}");
-    return response;
+    return Tuple2(pageNumber, response);
   }
 
   @override
   Widget build(BuildContext context) {
-    getData();
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -93,175 +94,229 @@ class _MyHomePageState extends State<MyHomePage> {
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: FutureBuilder(
-                future: getData(),
+                future: getData(0),
                 builder: (context, snapshot) {
-                  return snapshot.data != null ? listViewWidget(snapshot.data) : Center(child: CircularProgressIndicator());
+                  var response = snapshot.data.item2;
+                  var items = List<PostItem>();
+                  items.addAll(response.result);
+                  return response.result != null ? ChildWidget(this, items) : Center(child: CircularProgressIndicator());
                 }),
           ),
         ));
   }
 
-  ListView listViewWidget(PostResponse response) {
-    List<PostItem> items = response.result;
+}
 
-    return ListView.separated(
-        padding: const EdgeInsets.all(8),
-        itemCount: items.length,
-        separatorBuilder: (BuildContext context, int index) => Divider(
-          height: 10,
-          color: Colors.transparent,
-        ),
-        itemBuilder: (BuildContext context, int index) {
-          var curTheme = Theme.of(context);
-          return Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xffacacac),
-                      blurRadius: 1.0, // has the effect of softening the shadow
-                      spreadRadius: 1.0, // has the effect of extending the shadow
-                      offset: Offset(
-                        0.0, // horizontal, move right 10
-                        0.0, // vertical, move down 10
-                      ),
-                    )
-                  ],
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.0)),
-              child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Text(
-                      items[index].description,
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xff626262)
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 5),
-                      decoration: BoxDecoration(color: Colors.black),
-                      child: Stack(
-                        alignment: AlignmentDirectional.center,
-                        fit: StackFit.loose,
-                        children: <Widget>[
-                          Image.network(
-                            items[index].previewURL,
-                            height: 216,
-                            frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
-                              return Padding(
-                                padding: EdgeInsets.all(2.0),
-                                child: child,
-                              );
-                            },
+class ChildWidget extends StatefulWidget {
+
+  final _MyHomePageState parent;
+  final List<PostItem> initialItems;
+
+  ChildWidget(this.parent, this.initialItems);
+
+  @override
+  State<StatefulWidget> createState() => _ChildWidgetState(parent, initialItems);
+}
+
+class _ChildWidgetState extends State<ChildWidget> {
+
+  _MyHomePageState parent;//TODO remove
+
+  _ChildWidgetState(this.parent, this.items);
+
+  int perPage = 5;
+  var items = List<PostItem>();
+
+  void loadMore() {
+    print("Load more");
+    setState(() {
+
+      int pageToLoad = items.length ~/ perPage;
+      parent.getData(pageToLoad).then((value) {
+        var pageNumberLoaded = value.item1;
+        var pageItemsLoaded = value.item2;
+
+        var prevList = this.items;
+        items = List<PostItem>();
+
+        items.addAll(prevList.getRange(0, min(prevList.length, pageNumberLoaded * perPage)));
+        items.addAll(pageItemsLoaded.result);
+
+      }, onError: (error) {
+        print(error);
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      // ignore: missing_return
+        onNotification: (ScrollNotification scrollInfo) {
+          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+            loadMore();
+          }
+        },
+        child: ListView.separated(
+            padding: const EdgeInsets.all(8),
+            itemCount: items.length,
+            separatorBuilder: (BuildContext context, int index) => Divider(
+              height: 10,
+              color: Colors.transparent,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              var curTheme = Theme.of(context);
+              return Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xffacacac),
+                          blurRadius: 1.0, // has the effect of softening the shadow
+                          spreadRadius: 1.0, // has the effect of extending the shadow
+                          offset: Offset(
+                            0.0, // horizontal, move right 10
+                            0.0, // vertical, move down 10
                           ),
-                          Image.network(
-                            items[index].gifURL,
-                            height: 216,
-                            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-                              if (loadingProgress == null)
-                                return Padding(
-                                  padding: EdgeInsets.all(2.0),
-                                  child: child,
-                                );
+                        )
+                      ],
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Text(
+                          items[index].description,
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xff626262)
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(top: 5),
+                          decoration: BoxDecoration(color: Colors.black),
+                          child: Stack(
+                            alignment: AlignmentDirectional.center,
+                            fit: StackFit.loose,
+                            children: <Widget>[
+                              Image.network(
+                                items[index].previewURL,
+                                height: 216,
+                                frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
+                                  return Padding(
+                                    padding: EdgeInsets.all(2.0),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                              Image.network(
+                                items[index].gifURL,
+                                height: 216,
+                                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
+                                  if (loadingProgress == null)
+                                    return Padding(
+                                      padding: EdgeInsets.all(2.0),
+                                      child: child,
+                                    );
 
-                              return Container(
-                                height: 220,
-                                alignment: Alignment.topCenter,
-                                child:Container(
-                                  height: 3.0,
-                                  child: LinearProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
-                                        : null,
+                                  return Container(
+                                    height: 220,
+                                    alignment: Alignment.topCenter,
+                                    child:Container(
+                                      height: 3.0,
+                                      child: LinearProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                            height: 40,
+                            margin: EdgeInsets.only(top: 5),
+                            child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text(
+                                            "Author: " + items[index].author,
+                                            softWrap: false,
+                                            overflow: TextOverflow.fade,
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Color(0xff949494)
+                                            ),
+                                          ),
+                                          Text(
+                                            "Rating: " + items[index].votes.toString(),
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.start,
+                                            softWrap: false,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Color(0xff949494)
+                                            ),
+                                          ),
+                                        ]
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          )
-                        ],
-                      ),
-                    ),
-
-                    Container(
-                      height: 40,
-                      margin: EdgeInsets.only(top: 5),
-                      child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            Expanded(
-                              child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      "Author: " + items[index].author + items[index].author + items[index].author,
-                                      softWrap: false,
-                                      overflow: TextOverflow.fade,
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Color(0xff949494)
-                                      ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: curTheme.primaryColor,
                                     ),
-                                    Text(
-                                      "Rating: " + items[index].votes.toString(),
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.start,
-                                      softWrap: false,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Color(0xff949494)
-                                      ),
-                                    ),
-                                  ]
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: curTheme.primaryColor,
-                              ),
-                              padding: EdgeInsets.all(2),
-                              child: Row(
-                                  children: <Widget>[
-                                    Container(
-                                      margin: EdgeInsets.only(right: 1),
-                                      decoration: BoxDecoration(
-                                          color: curTheme.primaryColorLight
-                                      ),
-                                      child: IconButton(
-                                        onPressed: () => print("link"),
-                                        icon: Icon(
-                                            Icons.insert_link,
-                                            color: curTheme.primaryColor
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.only(left: 1),
-                                      decoration: BoxDecoration(
-                                        color: curTheme.primaryColorLight,
-                                      ),
-                                      child: IconButton(
-                                        onPressed: () => print("share"),
-                                        icon: Icon(
-                                            Icons.share,
-                                            color: curTheme.primaryColor
-                                        ),
-                                      ),
-                                    ),
-                                  ]
-                              ),),
-                          ]
-                      )
-                    ),
-                  ]));
-        });
+                                    padding: EdgeInsets.all(2),
+                                    child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(right: 1),
+                                            decoration: BoxDecoration(
+                                                color: curTheme.primaryColorLight
+                                            ),
+                                            child: IconButton(
+                                              onPressed: () => Share.share("https://developerslife.ru/" + items[index].id.toString()),
+                                              icon: Icon(
+                                                  Icons.insert_link,
+                                                  color: curTheme.primaryColor
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(left: 1),
+                                            decoration: BoxDecoration(
+                                              color: curTheme.primaryColorLight,
+                                            ),
+                                            child: IconButton(
+                                              onPressed: () => Share.share(items[index].gifURL),
+                                              icon: Icon(
+                                                  Icons.share,
+                                                  color: curTheme.primaryColor
+                                              ),
+                                            ),
+                                          ),
+                                        ]
+                                    ),),
+                                ]
+                            )
+                        ),
+                      ]));
+            })
+    );
   }
 }
