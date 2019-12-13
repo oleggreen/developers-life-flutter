@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
@@ -10,6 +9,7 @@ import 'package:tuple/tuple.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'RestService.dart';
+import 'categories.dart';
 import 'model/PostItem.dart';
 import 'model/PostResponse.dart';
 
@@ -61,20 +61,46 @@ Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
 
-Future<Tuple2<int, PostResponse>> getData(String category, int pageNumber) async {
-  print("getData: category=" + category + ", page=" + pageNumber.toString() );
+Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) async {
+  print("getData: category=" + category.toString() + ", page=" + pageNumber.toString() );
 
   final dio = Dio();
   final client = RestClient(dio);
-  var response = await client.getPosts(category, pageNumber);
+  var response = await client.getPosts(getUrlByCategory(category), pageNumber);
 
   print("getData:result: ${response.result.toString()}");
   return Tuple2(pageNumber, response);
 }
 
+// ignore: missing_return
+String getUrlByCategory(Category category) {
+  switch(category) {
+    case Category.LATEST_CATEGORY: return RestClient.LATEST_CATEGORY;
+    case Category.TOP_CATEGORY: return RestClient.TOP_CATEGORY;
+    case Category.MONTHLY_CATEGORY: return RestClient.MONTHLY_CATEGORY;
+    case Category.HOT_CATEGORY: return RestClient.HOT_CATEGORY;
+    case Category.RANDOM_CATEGORY: return null;
+  }
+}
+
+// ignore: missing_return
+String getTitleTextByCategory(Category category) {
+  switch(category) {
+    case Category.LATEST_CATEGORY: return "Latest";
+    case Category.TOP_CATEGORY: return "Best of all time";
+    case Category.MONTHLY_CATEGORY: return "Best of the month";
+    case Category.HOT_CATEGORY: return "Hot";
+    case Category.RANDOM_CATEGORY: return "Random";
+  }
+}
+
+var greyColor = Color(0xff949494);
+var lightGreyColor = Color(0xffcfcfcf);
+var darkGreyColor = Color(0xff626262);
+
 class _MyHomePageState extends State<MyHomePage> {
 
-  var selectedCategory = RestClient.LATEST_CATEGORY;
+  Category selectedCategory = Category.LATEST_CATEGORY;
 
   @override
   void setState(VoidCallback fn) {
@@ -93,56 +119,44 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(selectedCategory),
+          brightness: Brightness.dark,
+          title: Text(getTitleTextByCategory(selectedCategory), style: TextStyle(color: Colors.white)),
+          iconTheme: new IconThemeData(color: Colors.white),
         ),
         drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
-              DrawerHeader(
-                child: Image.asset('assets/images/ic_launcher.png'),
-                decoration: BoxDecoration(
-                  color: Colors.orange,
+              SizedBox(
+                height: 240.0,
+                child: DrawerHeader(
+                  padding: EdgeInsets.only(left: 40, top: 20, right: 30, bottom: 20),
+                  child: Stack(
+                    alignment: Alignment.centerLeft,
+                    children: <Widget>[
+                      Image.asset('assets/images/logo.png'),
+                      Positioned(
+                          bottom: 10.0,
+                          left: 12.0,
+                          child: Text("Developers life", style: TextStyle(fontSize: 16, color: darkGreyColor))
+                      )
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                  ),
                 ),
               ),
-              ListTile(
-                title: Text('Latest'),
-                trailing: Icon(Icons.arrow_forward),
-                onTap: () {
-                  Fluttertoast.showToast(msg: "Selected: Latest");
-                  Navigator.pop(context);
-                  setState(() {
-                    selectedCategory = RestClient.LATEST_CATEGORY;
-                  });
-                },
-              ),
-              ListTile(
-                title: Text('Best'),
-                trailing: Icon(Icons.arrow_forward),
-                onTap: () {
-                  Fluttertoast.showToast(msg: "Selected: Best");
-                  Navigator.pop(context);
-                  setState(() {
-                    selectedCategory = RestClient.TOP_CATEGORY;
-                  });
-                },
-              ),
-              ListTile(
-                title: Text('Hot'),
-                trailing: Icon(Icons.arrow_forward),
-                onTap: () {
-                  Fluttertoast.showToast(msg: "Selected: Hot");
-                  Navigator.pop(context);
-                  setState(() {
-                    selectedCategory = RestClient.HOT_CATEGORY;
-                  });
-                },
-              ),
+              createMenuItem(context, Category.LATEST_CATEGORY),
+              createMenuItem(context, Category.TOP_CATEGORY),
+              createMenuItem(context, Category.MONTHLY_CATEGORY),
+              createMenuItem(context, Category.HOT_CATEGORY),
+              Divider(height: 1, color: darkGreyColor),
             ],
           ),
         ),
         body: Container(
-          color: Color(0xffcfcfcf),
+          color: lightGreyColor,
           child: Center(
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
@@ -165,6 +179,22 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ));
   }
+
+  ListTile createMenuItem(BuildContext context, Category category) {
+    var titleTextByCategory = getTitleTextByCategory(category);
+    return ListTile(
+      leading: Icon(Icons.arrow_forward),
+      title: Text(titleTextByCategory, style: TextStyle(color: darkGreyColor),),
+      trailing: Icon(Icons.arrow_forward),
+      onTap: () {
+        Fluttertoast.showToast(msg: "Selected: " + titleTextByCategory);
+        Navigator.pop(context);
+        setState(() {
+          selectedCategory = category;
+        });
+      },
+    );
+  }
 }
 
 class PostListWidget extends StatefulWidget {
@@ -172,7 +202,7 @@ class PostListWidget extends StatefulWidget {
   static const int ITEMS_PER_PAGE = 5;
   final List<PostItem> items;
   final _MyHomePageState parent;
-  final String selectedCategory;
+  final Category selectedCategory;
 
   PostListWidget(this.parent, this.selectedCategory, this.items);
 
@@ -186,12 +216,11 @@ class _PostListWidgetState extends State<PostListWidget> {
     setState(() {
       int pageToLoad = widget.items.length ~/ PostListWidget.ITEMS_PER_PAGE;
       getData(widget.selectedCategory, pageToLoad).then((value) {
+
         var pageNumberLoaded = value.item1;
         var pageItemsLoaded = value.item2;
 
         var newList = List<PostItem>();
-        newList.addAll(widget.items);
-
         newList.addAll(widget.items.getRange(0, min(widget.items.length, pageNumberLoaded * PostListWidget.ITEMS_PER_PAGE)));
         newList.addAll(pageItemsLoaded.result);
 
@@ -207,7 +236,7 @@ class _PostListWidgetState extends State<PostListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print("_PostListWidgetState.build: " + widget.selectedCategory + " " + widget.items.toString());
+    print("_PostListWidgetState.build: " + widget.selectedCategory.toString() + " " + widget.items.toString());
 
     return NotificationListener<ScrollNotification>(
       // ignore: missing_return
@@ -269,7 +298,7 @@ class _PostListWidgetState extends State<PostListWidget> {
                         textAlign: TextAlign.start,
                         style: TextStyle(
                             fontSize: 16,
-                            color: Color(0xff626262)
+                            color: darkGreyColor
                         ),
                       ),
                       Container(
@@ -338,7 +367,7 @@ class _PostListWidgetState extends State<PostListWidget> {
                                           textAlign: TextAlign.start,
                                           style: TextStyle(
                                               fontSize: 14,
-                                              color: Color(0xff949494)
+                                              color: greyColor
                                           ),
                                         ),
                                         Text(
@@ -348,7 +377,7 @@ class _PostListWidgetState extends State<PostListWidget> {
                                           softWrap: false,
                                           style: TextStyle(
                                               fontSize: 14,
-                                              color: Color(0xff949494)
+                                              color: greyColor
                                           ),
                                         ),
                                       ]

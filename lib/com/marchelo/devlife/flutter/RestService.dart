@@ -15,9 +15,7 @@ abstract class RestClient {
 
   static const String TOP_CATEGORY = "top";
   static const String MONTHLY_CATEGORY = "monthly";
-
   static const String HOT_CATEGORY = "hot";
-
   static const String LATEST_CATEGORY = "latest";
 
   @GET("/{category}/{page}?json=true")
