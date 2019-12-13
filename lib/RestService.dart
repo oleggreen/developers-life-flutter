@@ -5,7 +5,7 @@ import 'model/PostResponse.dart';
 
 part 'RestService.g.dart';
 
-@RestApi(baseUrl: "http://developerslife.ru/")
+@RestApi(baseUrl: "https://developerslife.ru/")
 abstract class RestClient {
   factory RestClient(Dio dio) = _RestClient;
 
