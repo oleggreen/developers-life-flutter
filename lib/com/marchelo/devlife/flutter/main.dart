@@ -75,22 +75,24 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
 // ignore: missing_return
 String getUrlByCategory(Category category) {
   switch(category) {
-    case Category.LATEST_CATEGORY: return RestClient.LATEST_CATEGORY;
-    case Category.TOP_CATEGORY: return RestClient.TOP_CATEGORY;
-    case Category.MONTHLY_CATEGORY: return RestClient.MONTHLY_CATEGORY;
-    case Category.HOT_CATEGORY: return RestClient.HOT_CATEGORY;
-    case Category.RANDOM_CATEGORY: return null;
+    case Category.LATEST: return RestClient.LATEST_CATEGORY;
+    case Category.TOP: return RestClient.TOP_CATEGORY;
+    case Category.MONTHLY: return RestClient.MONTHLY_CATEGORY;
+    case Category.HOT: return RestClient.HOT_CATEGORY;
+    case Category.RANDOM: return null;
+    case Category.FAVORITE: return null;
   }
 }
 
 // ignore: missing_return
 String getTitleTextByCategory(Category category) {
   switch(category) {
-    case Category.LATEST_CATEGORY: return "Latest";
-    case Category.TOP_CATEGORY: return "Best of all time";
-    case Category.MONTHLY_CATEGORY: return "Best of the month";
-    case Category.HOT_CATEGORY: return "Hot";
-    case Category.RANDOM_CATEGORY: return "Random";
+    case Category.LATEST: return "Latest";
+    case Category.TOP: return "Best of all time";
+    case Category.MONTHLY: return "Best of the month";
+    case Category.HOT: return "Hot";
+    case Category.RANDOM: return "Random";
+    case Category.FAVORITE: return "Favorite";
   }
 }
 
@@ -100,12 +102,7 @@ var darkGreyColor = Color(0xff626262);
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  Category selectedCategory = Category.LATEST_CATEGORY;
-
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-  }
+  Category selectedCategory = Category.LATEST;
 
   @override
   Widget build(BuildContext context) {
@@ -147,11 +144,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              createMenuItem(context, Category.LATEST_CATEGORY),
-              createMenuItem(context, Category.TOP_CATEGORY),
-              createMenuItem(context, Category.MONTHLY_CATEGORY),
-              createMenuItem(context, Category.HOT_CATEGORY),
+              createMenuItem(context, Category.LATEST, Icons.home),
+              createMenuItem(context, Category.TOP, Icons.star),
+              createMenuItem(context, Category.MONTHLY, Icons.star_half),
+              createMenuItem(context, Category.HOT, Icons.flash_on),
               Divider(height: 1, color: darkGreyColor),
+              createMenuItem(context, Category.FAVORITE, Icons.thumb_up),
             ],
           ),
         ),
@@ -169,31 +167,46 @@ class _MyHomePageState extends State<MyHomePage> {
                     return Center(child: CircularProgressIndicator());
 
                   } else {
-                    var response = resultTuple.item2;
-                    var items = List<PostItem>();
-                    items.addAll(response.result);
-                    print("rebuilding_list. " + items.toString());
-                    return PostListWidget(this, selectedCategory, items);
+                    PostResponse response = resultTuple.item2;
+                    if (response.totalCount == 0) {
+                      return Container(
+                        padding: EdgeInsets.all(40),
+                        alignment: Alignment.center,
+                        child: Text("This category is empty", style: TextStyle(fontSize: 28), textAlign: TextAlign.center,),
+                      );
+
+                    } else {
+                      var items = List<PostItem>();
+                      items.addAll(response.result);
+                      print("rebuilding_list. " + items.toString());
+                      return PostListWidget(this, selectedCategory, items, response.totalCount);
+                    }
                   }
                 }),
           ),
         ));
   }
 
-  ListTile createMenuItem(BuildContext context, Category category) {
+  Widget createMenuItem(BuildContext context, Category category, IconData iconData) {
     var titleTextByCategory = getTitleTextByCategory(category);
-    return ListTile(
-      leading: Icon(Icons.arrow_forward),
-      title: Text(titleTextByCategory, style: TextStyle(color: darkGreyColor),),
-      trailing: Icon(Icons.arrow_forward),
-      onTap: () {
-        Fluttertoast.showToast(msg: "Selected: " + titleTextByCategory);
-        Navigator.pop(context);
-        setState(() {
-          selectedCategory = category;
-        });
-      },
-    );
+    var textColor = category == selectedCategory ? Colors.orange : darkGreyColor;
+    var bgColor = category == selectedCategory ? lightGreyColor : Colors.transparent;
+
+    return Container(
+        decoration: BoxDecoration(color: bgColor),
+        child: ListTile(
+          selected: category == selectedCategory,
+          leading: Icon(iconData, color: textColor),
+          title: Text(titleTextByCategory, style: TextStyle(color: textColor, fontSize: 18)),
+          trailing: Icon(Icons.arrow_forward),
+          onTap: () {
+            Fluttertoast.showToast(msg: "Selected: " + titleTextByCategory);
+            Navigator.pop(context);
+            setState(() {
+              selectedCategory = category;
+            });
+          },
+        ));
   }
 }
 
@@ -203,8 +216,9 @@ class PostListWidget extends StatefulWidget {
   final List<PostItem> items;
   final _MyHomePageState parent;
   final Category selectedCategory;
+  final int totalCount;
 
-  PostListWidget(this.parent, this.selectedCategory, this.items);
+  PostListWidget(this.parent, this.selectedCategory, this.items, this.totalCount);
 
   @override
   State<StatefulWidget> createState() => _PostListWidgetState();
@@ -234,6 +248,10 @@ class _PostListWidgetState extends State<PostListWidget> {
     });
   }
 
+  bool isAllItemsLoaded() {
+    return widget.totalCount == widget.items.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     print("_PostListWidgetState.build: " + widget.selectedCategory.toString() + " " + widget.items.toString());
@@ -242,7 +260,7 @@ class _PostListWidgetState extends State<PostListWidget> {
       // ignore: missing_return
         onNotification: (ScrollNotification scrollInfo) {
 //          print("scrollInfo: [" + scrollInfo.metrics.pixels.toString() + " : " + scrollInfo.metrics.maxScrollExtent.toString() + "]");
-          if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 500) {
+          if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 500 && !isAllItemsLoaded()) {
             loadMore();
           }
         },
@@ -257,7 +275,12 @@ class _PostListWidgetState extends State<PostListWidget> {
             itemBuilder: (BuildContext context, int index) {
 
               if (index == widget.items.length) {
-                return Center(child: CircularProgressIndicator());
+                if (isAllItemsLoaded()) {
+                  return SizedBox(height: 10, width: 10,);
+
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
 
               } else {
                 var curTheme = Theme.of(context);
@@ -271,240 +294,157 @@ class _PostListWidgetState extends State<PostListWidget> {
 
   Widget buildListPostWidget(PostItem postItem, ThemeData curTheme) {
     return Card(
-      elevation: 2,
-      child: Container(
-                padding: EdgeInsets.symmetric(vertical: 7, horizontal: 10),
-//                decoration: BoxDecoration(
-//                    boxShadow: [
-//                      BoxShadow(
-//                        color: Color(0xffacacac),
-//                        blurRadius: 1.0, // has the effect of softening the shadow
-//                        spreadRadius: 1.0, // has the effect of extending the shadow
-//                        offset: Offset(
-//                          0.0, // horizontal, move right 10
-//                          0.0, // vertical, move down 10
-//                        ),
-//                      )
-//                    ],
-//                    color: Colors.white,
-//                    borderRadius: BorderRadius.circular(10.0)),
-
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Text(
-                        postItem.description,
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: darkGreyColor
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(top: 5),
-                        decoration: BoxDecoration(color: Colors.black),
-                        child: Stack(
-                          alignment: AlignmentDirectional.center,
-                          fit: StackFit.loose,
-                          children: <Widget>[
-                            Image.network(
-                              postItem.previewURL,
-                              height: 216,
-                              frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
-                                return Padding(
-                                  padding: EdgeInsets.all(2.0),
-                                  child: child,
-                                );
-                              },
-                            ),
-                            Image.network(
-                              postItem.gifURL,
-                              height: 216,
-                              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-                                if (loadingProgress == null)
-                                  return Padding(
-                                    padding: EdgeInsets.all(2.0),
-                                    child: child,
-                                  );
-
-                                return Container(
-                                  height: 220,
-                                  alignment: Alignment.topCenter,
-                                  child:Container(
-                                    height: 3.0,
-                                    child: LinearProgressIndicator(
-                                      value: loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
-                                          : null,
-                                    ),
-                                  ),
-                                );
-                              },
-                            )
-                          ],
-                        ),
-                      ),
-
-                      Container(
-                          height: 40,
-                          margin: EdgeInsets.only(top: 5),
-                          child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          "Author: " + postItem.author,
-                                          softWrap: false,
-                                          overflow: TextOverflow.fade,
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: greyColor
-                                          ),
-                                        ),
-                                        Text(
-                                          "Rating: " + postItem.votes.toString(),
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.start,
-                                          softWrap: false,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: greyColor
-                                          ),
-                                        ),
-                                      ]
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: curTheme.primaryColor,
-                                    borderRadius: BorderRadius.only(topLeft: Radius.circular(7), bottomRight: Radius.circular(7))
-                                  ),
-                                  padding: EdgeInsets.all(2),
-                                  child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: <Widget>[
-                                        Container(
-                                          margin: EdgeInsets.only(right: 1),
-                                          decoration: BoxDecoration(
-                                              color: curTheme.primaryColorLight,
-                                              borderRadius: BorderRadius.only(topLeft: Radius.circular(5))
-                                          ),
-                                          child: IconButton(
-                                            padding: EdgeInsets.zero,
-                                            onPressed: () => Share.share("https://developerslife.ru/" + postItem.id.toString()),
-                                            icon: Icon(
-                                                Icons.insert_link,
-                                                color: curTheme.primaryColor
-                                            ),
-                                          ),
-                                        ),
-//                                        ShareButtonWidget(postItem.gifURL)
-                                        Theme.of(context).platform == TargetPlatform.iOS
-                                            ? Container()
-                                            : Container(
-                                          margin: EdgeInsets.only(left: 1),
-                                          decoration: BoxDecoration(
-                                              color: curTheme.primaryColorLight,
-                                              borderRadius: BorderRadius.only(bottomRight: Radius.circular(5))
-                                          ),
-                                          child: IconButton(
-                                            padding: EdgeInsets.zero,
-                                            onPressed: () => Share.share(postItem.gifURL),
-                                            icon: Icon(
-                                                Icons.share,
-                                                color: curTheme.primaryColor
-                                            ),
-                                          ),
-                                        ),
-                                      ]
-                                  ),),
-                              ]
-                          )
-                      ),
-                    ])));
-  }
-}
-
-class ShareButtonWidget extends StatefulWidget {
-
-  final String textToShare;
-
-  ShareButtonWidget(this.textToShare);
-
-  @override
-  State<StatefulWidget> createState() => _ShareButtonWidgetState(textToShare);
-}
-
-class _ShareButtonWidgetState extends State<ShareButtonWidget> {
-
-  Color _myColor = Colors.green;
-
-  String textToShare;
-
-  _ShareButtonWidgetState(this.textToShare);
-
-  @override
-  Widget build(BuildContext context) {
-    var curTheme = Theme.of(context);
-
-    return new GestureDetector(
+        elevation: 2,
         child: Container(
-            margin: EdgeInsets.only(left: 1),
-            decoration: BoxDecoration(
-              color: _myColor,
-            ),
-            child: IconButton(
-              onPressed: () => {},//Share.share(textToShare),
-              icon: Icon(
-                  Icons.share,
-                  color: curTheme.primaryColor
-              ),
-            ),
-        ),
-        onTapDown: (tapDownDetails) {
-          print("Tap: onTapDown");
-          setState(() {
-            _myColor = Colors.white;
-          });
-        },
-        onTapUp: (tapUpDetails) {
-          print("Tap: onTapUp");
-          setState(() {
-            _myColor = curTheme.primaryColorLight;
-          });
-        },
-//        onTap: () {
-//          setState(() {
-//            if (_myColor == Colors.green) {
-//              _myColor = Colors.orange;
-//            }
-//            else {
-//              _myColor = Colors.green;
-//            }
-//          });
-//        }
+            padding: EdgeInsets.symmetric(vertical: 7, horizontal: 10),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    postItem.description,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: darkGreyColor
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 5),
+                    decoration: BoxDecoration(color: Colors.black),
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      fit: StackFit.loose,
+                      children: <Widget>[
+                        Image.network(
+                          postItem.previewURL,
+                          height: 276,
+                          frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
+                            return Padding(
+                              padding: EdgeInsets.all(2.0),
+                              child: child,
+                            );
+                          },
+                        ),
+                        Image.network(
+                          postItem.gifURL,
+                          height: 276,
+                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
+                            if (loadingProgress == null)
+                              return Padding(
+                                padding: EdgeInsets.all(2.0),
+                                child: child,
+                              );
+
+                            return Container(
+                              height: 280,
+                              alignment: Alignment.topCenter,
+                              child: Container(
+                                height: 3.0,
+                                child: LinearProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
+                                      : null,
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+
+                  Container(
+                      height: 40,
+                      margin: EdgeInsets.only(top: 5),
+                      child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Expanded(
+                              child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      "Author: " + postItem.author,
+                                      softWrap: false,
+                                      overflow: TextOverflow.fade,
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: greyColor
+                                      ),
+                                    ),
+                                    Text(
+                                      "Rating: " + postItem.votes.toString(),
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.start,
+                                      softWrap: false,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: greyColor
+                                      ),
+                                    ),
+                                  ]
+                              ),
+                            ),
+                            Container(
+                                decoration: BoxDecoration(
+                                    color: curTheme.primaryColor,
+                                    borderRadius: BorderRadius.only(topLeft: Radius.circular(7))
+                                ),
+                                padding: EdgeInsets.only(top: 2, bottom: 2, left: 2, right: 1),
+                                child: ButtonTheme(
+                                    minWidth: 20.0,
+                                    height: 10.0,
+                                    child: FlatButton(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(topLeft: Radius.circular(5)),
+                                      ),
+                                      child: Icon(
+                                          Icons.insert_link,
+                                          color: curTheme.primaryColor
+                                      ),
+                                      onPressed: () => Share.share("https://developerslife.ru/" + postItem.id.toString()),
+                                      color: curTheme.primaryColorLight,
+                                      textColor: Colors.white,
+                                      splashColor: Colors.white,
+                                    )
+                                )
+                            ),
+                            Container(
+                                decoration: BoxDecoration(
+                                    color: curTheme.primaryColor,
+                                    borderRadius: BorderRadius.only(bottomRight: Radius.circular(7))
+                                ),
+                                padding: EdgeInsets.only(top: 2, bottom: 2, left: 1, right: 2),
+                                child: ButtonTheme(
+                                    minWidth: 20.0,
+                                    height: 10.0,
+                                    child: FlatButton(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(bottomRight: Radius.circular(5)),
+                                      ),
+                                      child: Icon(
+                                          Icons.share,
+                                          color: curTheme.primaryColor
+                                      ),
+                                      onPressed: () => Share.share("https://developerslife.ru/" + postItem.id.toString()),
+                                      color: curTheme.primaryColorLight,
+                                      textColor: Colors.white,
+                                      splashColor: Colors.white,
+                                    )
+                                )
+                            ),
+                          ]
+                      )
+                  ),
+                ]
+            )
+        )
     );
-//        return Container(
-//      margin: EdgeInsets.only(left: 1),
-//      decoration: BoxDecoration(
-//        color: curTheme.primaryColorLight,
-//      ),
-//      child: IconButton(
-//        onPressed: () => Share.share(postItem.gifURL),
-//        icon: Icon(
-//            Icons.share,
-//            color: curTheme.primaryColor
-//        ),
-//      ),
-//    );
   }
 }
