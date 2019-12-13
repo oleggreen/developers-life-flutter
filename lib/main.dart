@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -62,14 +64,23 @@ Future<String> getFileData(String path) async {
 }
 
 Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) async {
-  print("getData: category=" + category.toString() + ", page=" + pageNumber.toString() );
+  print("getData: category=" + category.toString() + ", page=" + pageNumber.toString());
 
-  final dio = Dio();
-  final client = RestClient(dio);
-  var response = await client.getPosts(getUrlByCategory(category), pageNumber);
 
-  print("getData:result: ${response.result.toString()}");
-  return Tuple2(pageNumber, response);
+  if (kIsWeb) {
+    var dataString = await getFileData("assets/best_of_all_time.json");
+    print("getData:result: " + dataString);
+    PostResponse data = PostResponse.fromJsonMap(json.decode(dataString));
+    return Tuple2(pageNumber, data);
+
+  } else {
+    final dio = Dio();
+    final client = RestClient(dio);
+    var response = await client.getPosts(getUrlByCategory(category), pageNumber);
+
+    print("getData:result: ${response.result.toString()}");
+    return Tuple2(pageNumber, response);
+  }
 }
 
 // ignore: missing_return
