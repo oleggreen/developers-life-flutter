@@ -293,6 +293,7 @@ class _PostListWidgetState extends State<PostListWidget> {
   }
 
   Widget buildListPostWidget(PostItem postItem, ThemeData curTheme) {
+    var votesCount = postItem.votes;
     return Card(
         elevation: 2,
         child: Container(
@@ -326,6 +327,11 @@ class _PostListWidgetState extends State<PostListWidget> {
                             );
                           },
                         ),
+//                        CachedNetworkImage(
+//                          imageUrl: postItem.previewURL,
+//                          height: 276,
+//                          errorWidget: (context, url, error) => Icon(Icons.error),
+//                        ),
                         Image.network(
                           postItem.gifURL,
                           height: 276,
@@ -379,13 +385,13 @@ class _PostListWidgetState extends State<PostListWidget> {
                                       ),
                                     ),
                                     Text(
-                                      "Rating: " + postItem.votes.toString(),
+                                      "Rating: " + votesCount.toString(),
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.start,
                                       softWrap: false,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: greyColor
+                                          color: votesCount > 100 ? curTheme.primaryColor : greyColor
                                       ),
                                     ),
                                   ]
