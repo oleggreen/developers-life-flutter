@@ -1,0 +1,3 @@
+[submodule "android/dev_lite_module"]
+	path = android/dev_lite_module
+	url = git@github.com:marchelo/developers-lite.git

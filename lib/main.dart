@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -8,7 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share/share.dart';
 import 'package:tuple/tuple.dart';
 
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show PlatformException, MethodChannel, rootBundle;
 
 import 'RestService.dart';
 import 'categories.dart';
@@ -16,6 +18,16 @@ import 'model/PostItem.dart';
 import 'model/PostResponse.dart';
 
 void main() => runApp(MyApp());
+
+const platform = const MethodChannel("test_activity");
+
+_getNewActivity() async {
+  try {
+    await platform.invokeMethod('startNewActivity');
+  } on PlatformException catch (e) {
+    print(e.message);
+  }
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -67,7 +79,7 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
   print("getData: category=" + category.toString() + ", page=" + pageNumber.toString());
 
 
-  if (kIsWeb) {
+  if (kIsWeb || Platform.isMacOS) {
     var dataString = await getFileData("assets/best_of_all_time.json");
     print("getData:result: " + dataString);
     PostResponse data = PostResponse.fromJsonMap(json.decode(dataString));
@@ -173,13 +185,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 future: getData(selectedCategory, 0),
                 builder: (context, snapshot) {
                   var resultTuple = snapshot.data;
-                  if (resultTuple == null) {
+                  if (snapshot.connectionState != ConnectionState.done) {
                     print("rebuilding_list. data is null");
                     return Center(child: CircularProgressIndicator());
 
                   } else {
                     PostResponse response = resultTuple.item2;
-                    if (response.totalCount == 0) {
+                    if (snapshot.hasError) {
+                      return Text("Some error occured");
+
+                    } else if (response.totalCount == 0) {
                       return Container(
                         padding: EdgeInsets.all(40),
                         alignment: Alignment.center,
@@ -426,6 +441,28 @@ class _PostListWidgetState extends State<PostListWidget> {
                                           color: curTheme.primaryColor
                                       ),
                                       onPressed: () => Share.share("https://developerslife.ru/" + postItem.id.toString()),
+                                      color: curTheme.primaryColorLight,
+                                      textColor: Colors.white,
+                                      splashColor: Colors.white,
+                                    )
+                                )
+                            ),
+                            Container(
+                                decoration: BoxDecoration(
+                                    color: curTheme.primaryColor,
+                                ),
+                                padding: EdgeInsets.only(top: 2, bottom: 2, left: 1, right: 1),
+                                child: ButtonTheme(
+                                    minWidth: 20.0,
+                                    height: 10.0,
+                                    child: FlatButton(
+                                      shape: RoundedRectangleBorder(
+                                      ),
+                                      child: Icon(
+                                          Icons.launch,
+                                          color: curTheme.primaryColor
+                                      ),
+                                      onPressed: () => _getNewActivity(),
                                       color: curTheme.primaryColorLight,
                                       textColor: Colors.white,
                                       splashColor: Colors.white,
