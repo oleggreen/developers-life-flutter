@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           brightness: Brightness.dark,
-          title: Text(getTitleTextByCategory(selectedCategory), style: TextStyle(color: Colors.white)),
+          title: Text(getTitleTextByCategory(selectedCategory, context), style: TextStyle(color: Colors.white)),
           iconTheme: new IconThemeData(color: Colors.white),
         ),
         drawer: Drawer(
@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget createMenuItem(BuildContext context, Category category, IconData iconData) {
-    var titleTextByCategory = getTitleTextByCategory(category);
+    var titleTextByCategory = getTitleTextByCategory(category, context);
     var textColor = category == selectedCategory ? Colors.orange : darkGreyColor;
     var bgColor = category == selectedCategory ? lightGreyColor : Colors.transparent;
 
@@ -194,9 +194,6 @@ class _PostListWidgetState extends State<PostListWidget> {
   Widget build(BuildContext context) {
     print("_PostListWidgetState.build: " + widget.selectedCategory.toString() + " " + widget.items.toString());
 
-    var screenWidth = MediaQuery.of(context).size.width;
-    var crossAxisCount = screenWidth > 800 ? 2 : 1;
-
     return NotificationListener<ScrollNotification>(
         // ignore: missing_return
         onNotification: (ScrollNotification scrollInfo) {
@@ -205,27 +202,6 @@ class _PostListWidgetState extends State<PostListWidget> {
           }
         },
 
-//        child: GridView.builder(
-//            padding: const EdgeInsets.all(8),
-//            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount, childAspectRatio: 3 / 2),
-//            itemCount: widget.items.length + 1,
-//            itemBuilder: (BuildContext context, int index) {
-//
-//              if (index == widget.items.length) {
-//                if (isAllItemsLoaded()) {
-//                  return SizedBox(height: 10, width: 10,);
-//
-//                } else {
-//                  return Center(child: CircularProgressIndicator());
-//                }
-//
-//              } else {
-//                var curTheme = Theme.of(context);
-//                var postItem = widget.items[index];
-//
-//                return buildListPostWidget(postItem, curTheme);
-//              }
-//            })
         child: ListView.separated(
             padding: const EdgeInsets.all(8),
             itemCount: widget.items.length + 1,
@@ -249,7 +225,8 @@ class _PostListWidgetState extends State<PostListWidget> {
 
                 return buildListPostWidget(postItem, curTheme);
               }
-            }));
+            })
+    );
   }
 
   Widget buildListPostWidget(PostItem postItem, ThemeData curTheme) {

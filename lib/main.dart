@@ -2,7 +2,10 @@ import 'package:developerslife_flutter/second_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'home_screen.dart';
+import 'model/localizations.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,11 +13,26 @@ var greyColor = Color(0xff949494);
 var lightGreyColor = Color(0xffcfcfcf);
 var darkGreyColor = Color(0xff626262);
 
+MaterialLocalizations of(BuildContext context) {
+return Localizations.of<MaterialLocalizations>(context, MaterialLocalizations);
+}
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        localizationsDelegates: [
+          // ... app-specific localization delegate[s] here
+          const DemoLocalizationsDelegate(),
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('en'), // English
+          const Locale('uk'), // Ukrainian
+        ],
         title: 'Flutter Demo',
         theme: ThemeData(
           // This is the theme of your application.

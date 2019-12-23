@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -10,6 +11,8 @@ import 'package:dio/dio.dart';
 import 'model/PostResponse.dart';
 
 import 'package:tuple/tuple.dart';
+
+import 'model/localizations.dart';
 
 /// Assumes the given path is a text-file-asset.
 Future<String> getFileData(String path) async {
@@ -53,13 +56,13 @@ String getUrlByCategory(Category category) {
 }
 
 // ignore: missing_return
-String getTitleTextByCategory(Category category) {
+String getTitleTextByCategory(Category category, BuildContext context) {
   switch(category) {
-    case Category.LATEST: return "Latest";
-    case Category.TOP: return "Best of all time";
-    case Category.MONTHLY: return "Best of the month";
-    case Category.HOT: return "Hot";
-    case Category.RANDOM: return "Random";
-    case Category.FAVORITE: return "Favorite";
+    case Category.LATEST: return DemoLocalizations.of(context).latest;
+    case Category.TOP: return DemoLocalizations.of(context).bestOfAllTime;
+    case Category.MONTHLY: return DemoLocalizations.of(context).bestOfTheMonth;
+    case Category.HOT: return DemoLocalizations.of(context).hot;
+    case Category.RANDOM: return DemoLocalizations.of(context).random;
+    case Category.FAVORITE: return DemoLocalizations.of(context).favorite;
   }
 }
