@@ -20,6 +20,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_localizations:
+    sdk: flutter
+  flutter_cupertino_localizations: ^1.0.1
+
   retrofit: any
   logger: any
   json_annotation: ^2.4.0
