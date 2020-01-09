@@ -8,11 +8,12 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'RestService.dart';
 import 'categories.dart';
 import 'package:dio/dio.dart';
+import 'model/PostItem.dart';
 import 'model/PostResponse.dart';
 
 import 'package:tuple/tuple.dart';
 
-import 'model/localizations.dart';
+import 'localizations.dart';
 
 /// Assumes the given path is a text-file-asset.
 Future<String> getFileData(String path) async {
@@ -27,14 +28,38 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
     print("getData:result: " + dataString);
     PostResponse data = PostResponse.fromJsonMap(json.decode(dataString));
     return Tuple2(pageNumber, data);
+
   } else {
     final dio = Dio();
     final client = RestClient(dio);
-    var response = await client.getPosts(getUrlByCategory(category), pageNumber);
+
+    PostResponse response;
+    if (category == Category.RANDOM) {
+      response = await getRandomPosts(client);
+
+    } else {
+      response = await client.getPosts(getUrlByCategory(category), pageNumber);
+    }
 
     print("getData:result: ${response.result.toString()}");
     return Tuple2(pageNumber, response);
   }
+}
+
+Future<PostResponse> getRandomPosts(RestClient client) async {
+  List<PostItem> randomItems = List();
+  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+//  randomItems.add(await client.getRandomPost());
+
+  return PostResponse(result: randomItems, totalCount: -1);
 }
 
 // ignore: missing_return

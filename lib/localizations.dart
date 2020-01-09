@@ -20,6 +20,7 @@ class DemoLocalizations {
       'hot': 'Hot',
       'random': 'Random',
       'favorite': 'Favorite',
+      'auto_load_gifs' : 'Autoload all gifs',
     },
     'uk': {
       'latest': 'Останні',
@@ -28,6 +29,7 @@ class DemoLocalizations {
       'hot': 'Гарячі',
       'random': 'Випадкові',
       'favorite': 'Улюблені',
+      'auto_load_gifs' : 'Автоматично завантажувати Гіфки',
     },
   };
 
@@ -37,6 +39,7 @@ class DemoLocalizations {
   String get hot => _localizedValues[locale.languageCode]['hot'];
   String get random => _localizedValues[locale.languageCode]['random'];
   String get favorite => _localizedValues[locale.languageCode]['favorite'];
+  String get auto_load_gifs => _localizedValues[locale.languageCode]['auto_load_gifs'];
 }
 
 class DemoLocalizationsDelegate extends LocalizationsDelegate<DemoLocalizations> {

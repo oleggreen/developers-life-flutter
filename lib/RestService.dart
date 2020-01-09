@@ -1,16 +1,19 @@
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
 
+import 'model/PostItem.dart';
 import 'model/PostResponse.dart';
 
 part 'RestService.g.dart';
 
+//flutter pub run build_runner build
+//or
+//pub run build_runner build
 @RestApi(baseUrl: "https://developerslife.ru/")
 abstract class RestClient {
   factory RestClient(Dio dio) = _RestClient;
 
   //@GET("/{category}/{page}?json=true")
-  //@GET("/random?json=true")
   //@GET("/{id}?json=true")
 
   static const String TOP_CATEGORY = "top";
@@ -20,4 +23,7 @@ abstract class RestClient {
 
   @GET("/{category}/{page}?json=true")
   Future<PostResponse> getPosts(@Path() String category, @Path() int page);
+
+  @GET("/random/?json=true")
+  Future<PostItem> getRandomPost();
 }

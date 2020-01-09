@@ -1,19 +1,21 @@
 import 'dart:io';
 import 'dart:math';
-import 'package:developerslife_flutter/second_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share/share.dart';
 
-import 'package:flutter/services.dart' show PlatformException, MethodChannel;
-
+import 'package:provider/provider.dart';
 import 'categories.dart';
 import 'data_provider.dart';
+import 'localizations.dart';
 import 'main.dart';
 import 'model/PostItem.dart';
 import 'model/PostResponse.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'user_prefs.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -33,21 +35,16 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-const platform = const MethodChannel("test_activity");
-
-_getNewActivity() async {
-  try {
-    await platform.invokeMethod('startNewActivity');
-  } on PlatformException catch (e) {
-    print(e.message);
-  }
-}
-
 class _MyHomePageState extends State<MyHomePage> {
   Category selectedCategory = Category.LATEST;
 
+  bool autoLoadGifs = false;
+
   @override
   Widget build(BuildContext context) {
+//    _isAutoLoadGifs().
+//    autoLoadGifs = _isAutoLoadGifs();
+
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -59,8 +56,50 @@ class _MyHomePageState extends State<MyHomePage> {
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           brightness: Brightness.dark,
-          title: Text(getTitleTextByCategory(selectedCategory, context), style: TextStyle(color: Colors.white)),
+          title: Consumer<UserPrefs>(
+            builder: (context, userPrefs, _) {
+              print("UserPrefs: Consumer().builder ${userPrefs.loadGifUrlsPref}");
+              return Text("load gifs: " + userPrefs.loadGifUrlsPref.toString(), style: TextStyle(color: Colors.white));
+            },
+          ),
+//          title: Text(getTitleTextByCategory(selectedCategory, context), style: TextStyle(color: Colors.white)),
           iconTheme: new IconThemeData(color: Colors.white),
+          actions: [
+            FutureBuilder(
+              future: _isAutoLoadGifs(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return Center(child: CircularProgressIndicator());
+
+                } else {
+                  return PopupMenuButton<MenuItem>(
+                    onSelected: _select,
+                    itemBuilder: (BuildContext context) {
+                      return List()
+                        ..add(
+                          PopupMenuItem(
+                              value: MenuItem.AUTO_LOAD_GIFS,
+                              child: Row(
+                                  children: [
+                                    Checkbox(value: autoLoadGifs, onChanged: (checked) {
+                                      setState(() {
+                                        _check(checked);
+                                      });
+                                    }),
+                                    Text(DemoLocalizations
+                                        .of(context)
+                                        .auto_load_gifs
+                                    )
+                                  ]
+                              )
+                          ),
+                        );
+                    },
+                  );
+                }
+              },
+            ),
+          ],
         ),
         drawer: Drawer(
           child: ListView(
@@ -88,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
               createMenuItem(context, Category.MONTHLY, Icons.star_half),
               createMenuItem(context, Category.HOT, Icons.flash_on),
               Divider(height: 1, color: darkGreyColor),
+              createMenuItem(context, Category.RANDOM, Icons.autorenew),
               createMenuItem(context, Category.FAVORITE, Icons.thumb_up),
             ],
           ),
@@ -104,6 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (snapshot.connectionState != ConnectionState.done) {
                     print("rebuilding_list. data is null");
                     return Center(child: CircularProgressIndicator());
+
                   } else {
                     PostResponse response = resultTuple.item2;
                     if (snapshot.hasError) {
@@ -130,6 +171,24 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
+  PopupMenuItem<MenuItem> buildPopupMenuItem(BuildContext context) {
+    return PopupMenuItem(
+        value: MenuItem.AUTO_LOAD_GIFS,
+        child: Row(
+            children: [
+              Checkbox(value: autoLoadGifs, onChanged: (checked) {
+                setState(() {
+                  _check(checked);
+                });
+              }),
+              Text(DemoLocalizations
+                  .of(context)
+                  .auto_load_gifs)
+            ]
+        )
+    );
+  }
+
   Widget createMenuItem(BuildContext context, Category category, IconData iconData) {
     var titleTextByCategory = getTitleTextByCategory(category, context);
     var textColor = category == selectedCategory ? Colors.orange : darkGreyColor;
@@ -151,6 +210,36 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ));
   }
+
+  void _select(MenuItem menuItem) {
+    if (menuItem == MenuItem.AUTO_LOAD_GIFS) {
+      _check(!autoLoadGifs);
+    }
+  }
+
+  void _check(bool checked) {
+    autoLoadGifs = checked;
+    _setAutoLoadGifs(autoLoadGifs);
+    print("UserPrefs: Provider.of().setLoadGifUrlsPref() $autoLoadGifs");
+    Provider.of<UserPrefs>(context, listen: false)
+        .setLoadGifUrlsPref(autoLoadGifs);
+  }
+
+  final autoLoadGifsTag = 'autoLoadGifs';
+
+  _setAutoLoadGifs(bool autoLoad) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(autoLoadGifsTag, autoLoad);
+  }
+
+  Future<bool> _isAutoLoadGifs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(autoLoadGifsTag) ?? false;
+  }
+}
+
+enum MenuItem {
+  AUTO_LOAD_GIFS
 }
 
 class PostListWidget extends StatefulWidget {
@@ -241,62 +330,29 @@ class _PostListWidgetState extends State<PostListWidget> {
                 textAlign: TextAlign.start,
                 style: TextStyle(fontSize: 16, color: darkGreyColor),
               ),
-              GestureDetector(
-                  onLongPress: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SecondRoute(postItem)),
-                      ),
-                  child: Container(
-                    margin: EdgeInsets.only(top: 5),
-                    decoration: BoxDecoration(color: Colors.black),
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      fit: StackFit.loose,
-                      children: <Widget>[
-                        Hero(
-                            tag: postItem.previewURL,
-                            child: Image.network(
-                              postItem.previewURL,
-                              height: 276,
-                              frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
-                                return Padding(
-                                  padding: EdgeInsets.all(2.0),
-                                  child: child,
-                                );
-                              },
-                            )),
-                        //                        CachedNetworkImage(
-                        //                          imageUrl: postItem.previewURL,
-                        //                          height: 276,
-                        //                          errorWidget: (context, url, error) => Icon(Icons.error),
-                        //                        ),
-                        Image.network(
-                          postItem.gifURL,
+              Container(
+                margin: EdgeInsets.only(top: 5),
+                decoration: BoxDecoration(color: Colors.black),
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  fit: StackFit.loose,
+                  children: <Widget>[
+                    Hero(
+                        tag: postItem.previewURL,
+                        child: Image.network(
+                          postItem.previewURL,
                           height: 276,
-                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-                            if (loadingProgress == null)
-                              return Padding(
-                                padding: EdgeInsets.all(2.0),
-                                child: child,
-                              );
-
-                            return Container(
-                              height: 280,
-                              alignment: Alignment.topCenter,
-                              child: Container(
-                                height: 3.0,
-                                child: LinearProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
-                                      : null,
-                                ),
-                              ),
+                          frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
+                            return Padding(
+                              padding: EdgeInsets.all(2.0),
+                              child: child,
                             );
                           },
-                        )
-                      ],
-                    ),
-                  )),
+                        )),
+                    GifImageWidget(postItem),
+                  ],
+                ),
+              ),
               Container(
                   height: 40,
                   margin: EdgeInsets.only(top: 5),
@@ -304,31 +360,31 @@ class _PostListWidgetState extends State<PostListWidget> {
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  "Author: " + postItem.author,
-                                  softWrap: false,
-                                  overflow: TextOverflow.fade,
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(fontSize: 14, color: greyColor),
-                                ),
-                                Text(
-                                  "Rating: " + votesCount.toString(),
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
-                                  softWrap: false,
-                                  style: TextStyle(fontSize: 14, color: votesCount > 100 ? curTheme.primaryColor : greyColor),
-                                ),
-                              ]),
-                        ),
+                      children: [
+                        2 == 2 ? Text("asfafasdf") : Spacer(),
+//                        Expanded(
+//                          child: Column(
+//                              mainAxisSize: MainAxisSize.max,
+//                              mainAxisAlignment: MainAxisAlignment.center,
+//                              crossAxisAlignment: CrossAxisAlignment.start,
+//                              children: <Widget>[
+//                                Text(
+//                                  "Author: " + postItem.author,
+//                                  softWrap: false,
+//                                  overflow: TextOverflow.fade,
+//                                  textAlign: TextAlign.start,
+//                                  style: TextStyle(fontSize: 14, color: greyColor),
+//                                ),
+//                                Text(
+//                                  "Rating: " + votesCount.toString(),
+//                                  overflow: TextOverflow.ellipsis,
+//                                  textAlign: TextAlign.start,
+//                                  softWrap: false,
+//                                  style: TextStyle(fontSize: 14, color: votesCount > 100 ? curTheme.primaryColor : greyColor),
+//                                ),
+//                              ]),
+//                        ),
                         sharePostLinkWidget(curTheme, postItem),
-                        openAndroidActivityWidget(curTheme),
                         sharePostLinkWidget2(curTheme, postItem),
                       ])),
             ])));
@@ -337,21 +393,21 @@ class _PostListWidgetState extends State<PostListWidget> {
   Widget sharePostLinkWidget2(ThemeData curTheme, PostItem postItem) {
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       return Container(
-          decoration: BoxDecoration(color: curTheme.primaryColor, borderRadius: BorderRadius.only(bottomRight: Radius.circular(7))),
-          padding: EdgeInsets.only(top: 2, bottom: 2, left: 1, right: 2),
-          child: ButtonTheme(
-              minWidth: 20.0,
-              height: 10.0,
-              child: FlatButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(5)),
-                ),
-                child: Icon(Icons.share, color: curTheme.primaryColor),
-                onPressed: () => Share.share(postItem.gifURL),
-                color: curTheme.primaryColorLight,
-                textColor: Colors.white,
-                splashColor: Colors.white,
-              )));
+        decoration: BoxDecoration(color: curTheme.primaryColor, borderRadius: BorderRadius.only(bottomRight: Radius.circular(7))),
+        padding: EdgeInsets.only(top: 2, bottom: 2, left: 1, right: 2),
+        child: ButtonTheme(
+          minWidth: 20.0,
+          height: 10.0,
+          child: FlatButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(bottomRight: Radius.circular(5)),
+            ),
+            child: Icon(Icons.share, color: curTheme.primaryColor),
+            onPressed: () => Share.share(postItem.gifURL),
+            color: curTheme.primaryColorLight,
+            textColor: Colors.white,
+            splashColor: Colors.white,
+          ),),);
     } else {
       return Container();
     }
@@ -379,27 +435,97 @@ class _PostListWidgetState extends State<PostListWidget> {
       return Container();
     }
   }
+}
 
-  Widget openAndroidActivityWidget(ThemeData curTheme) {
-    if (!kIsWeb && Platform.isAndroid) {
-      return Container(
-          decoration: BoxDecoration(
-            color: curTheme.primaryColor,
+class GifImageWidget extends StatefulWidget {
+  final PostItem postItem;
+
+  GifImageWidget(this.postItem);
+
+  @override
+  _GifImageWidgetState createState() => _GifImageWidgetState();
+}
+
+class _GifImageWidgetState extends State<GifImageWidget> {
+
+  bool userRequested = false;
+  bool loadGif = false;
+  bool pressed = false;
+
+  _GifImageWidgetState();
+
+  @override
+  Widget build(BuildContext context) {
+//    print("_GifImageWidgetState: build $loadGif : ${widget.autoLoadGifUrls}");
+    return Consumer<UserPrefs>(
+      builder: (context, userPrefs, _) {
+        print("UserPrefs: Consumer().builder $loadGif");
+        if (!userRequested) {
+          loadGif = userPrefs.loadGifUrlsPref;
+          print("UserPrefs: Consumer().builder overriden: $loadGif");
+        }
+        return Listener(
+          onPointerDown: (event) =>
+              setState(() {
+                pressed = !pressed;
+              }),
+          onPointerCancel: (event) =>
+              setState(() {
+                pressed = false;
+              }),
+          onPointerUp: (event) {
+            print("UserPrefs: onPointerUp");
+            userRequested = true;
+            loadGif = !loadGif;
+            pressed = false;
+            setState(() => {});
+          },
+          child: Column(
+            children: [
+              loadGifOrEmpty(loadGif),
+            ],
           ),
-          padding: EdgeInsets.only(top: 2, bottom: 2, left: 1, right: 1),
-          child: ButtonTheme(
-              minWidth: 20.0,
-              height: 10.0,
-              child: FlatButton(
-                shape: RoundedRectangleBorder(),
-                child: Icon(Icons.launch, color: curTheme.primaryColor),
-                onPressed: () => _getNewActivity(),
-                color: curTheme.primaryColorLight,
-                textColor: Colors.white,
-                splashColor: Colors.white,
-              )));
+        );
+      },
+    );
+  }
+
+  Widget loadGifOrEmpty(bool loadGif) {
+    if (loadGif) {
+      return Image.network(
+        widget.postItem.gifURL,
+        height: 276,
+        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
+          if (loadingProgress == null)
+            return Padding(
+              padding: EdgeInsets.all(2.0),
+              child: child,
+            );
+
+          return Container(
+            height: 280,
+            alignment: Alignment.topCenter,
+            child: Container(
+              height: 3.0,
+              child: LinearProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
+                    : null,
+              ),
+            ),
+          );
+        },
+      );
     } else {
-      return Container();
+      return Container(
+        height: 160,
+        width: double.infinity,
+        padding: EdgeInsets.all(20),
+        decoration: ShapeDecoration(color: pressed ? Color(0x99000000) : Color(0x77000000), shape: CircleBorder()),
+        child: LayoutBuilder(builder: (context, constraint) {
+          return Icon(Icons.play_arrow, color: pressed ? Colors.white : Color(0x77ffffff), size: constraint.biggest.height);
+        }),
+      );
     }
   }
 }
