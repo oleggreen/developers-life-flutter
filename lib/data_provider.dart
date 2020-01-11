@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'RestService.dart';
-import 'categories.dart';
+import 'network/RestService.dart';
+import 'model/categories.dart';
 import 'package:dio/dio.dart';
-import 'model/PostItem.dart';
-import 'model/PostResponse.dart';
+import 'network/model/PostItem.dart';
+import 'network/model/PostResponse.dart';
 
 import 'package:tuple/tuple.dart';
 
@@ -49,15 +49,10 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
 Future<PostResponse> getRandomPosts(RestClient client) async {
   List<PostItem> randomItems = List();
   randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
-//  randomItems.add(await client.getRandomPost());
+  randomItems.add(await client.getRandomPost());
+  randomItems.add(await client.getRandomPost());
+  randomItems.add(await client.getRandomPost());
+  randomItems.add(await client.getRandomPost());
 
   return PostResponse(result: randomItems, totalCount: -1);
 }

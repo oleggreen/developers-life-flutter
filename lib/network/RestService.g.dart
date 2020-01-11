@@ -24,7 +24,7 @@ class _RestClient implements RestClient {
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
     final Response<Map<String, dynamic>> _result = await _dio.request(
-        '/$category/$page?json=true',
+        '/$category/$page?types=gif&json=true',
         queryParameters: queryParameters,
         options: RequestOptions(
             method: 'GET',
@@ -42,7 +42,7 @@ class _RestClient implements RestClient {
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
     final Response<Map<String, dynamic>> _result = await _dio.request(
-        '/random/?json=true',
+        '/random?json=true',
         queryParameters: queryParameters,
         options: RequestOptions(
             method: 'GET',

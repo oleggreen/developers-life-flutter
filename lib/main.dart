@@ -1,15 +1,19 @@
+import 'package:developerslife_flutter/main_screen/selected_category.dart';
 import 'package:developerslife_flutter/second_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:provider/provider.dart';
-import 'home_screen.dart';
+import 'main_screen/home_screen.dart';
 import 'localizations.dart';
-import 'user_prefs.dart';
+import 'main_screen/user_prefs.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 var greyColor = Color(0xff949494);
 var lightGreyColor = Color(0xffcfcfcf);
@@ -23,10 +27,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown
+    ]);
+
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(
-            builder: (_) => UserPrefs(),
+            create: (_) => UserPrefs(),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => SelectedCategory(),
           ),
         ],
         child: MaterialApp(
@@ -63,7 +76,7 @@ class MyApp extends StatelessWidget {
             onGenerateRoute: (settings) {
               if (settings.name == DetailsRoute.routeName) {
                 // Cast the arguments to the correct type: ScreenArguments.
-                final DetailsRouteArguments args = settings.arguments;
+//                final DetailsRouteArguments args = settings.arguments;
 
                 // Then, extract the required data from the arguments and
                 // pass the data to the correct screen.

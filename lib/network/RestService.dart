@@ -13,17 +13,16 @@ part 'RestService.g.dart';
 abstract class RestClient {
   factory RestClient(Dio dio) = _RestClient;
 
-  //@GET("/{category}/{page}?json=true")
-  //@GET("/{id}?json=true")
+  //@GET("/{id}?json=true") details
 
   static const String TOP_CATEGORY = "top";
   static const String MONTHLY_CATEGORY = "monthly";
   static const String HOT_CATEGORY = "hot";
   static const String LATEST_CATEGORY = "latest";
 
-  @GET("/{category}/{page}?json=true")
+  @GET("/{category}/{page}?types=gif&json=true")
   Future<PostResponse> getPosts(@Path() String category, @Path() int page);
 
-  @GET("/random/?json=true")
+  @GET("/random?json=true")
   Future<PostItem> getRandomPost();
 }

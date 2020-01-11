@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
-import 'model/PostItem.dart';
+import 'network/model/PostItem.dart';
 
 class SecondRoute extends StatelessWidget {
 
