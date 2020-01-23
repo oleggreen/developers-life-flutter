@@ -1,33 +1,21 @@
-import 'package:developerslife_flutter/main_screen/user_prefs.dart';
-import 'package:developerslife_flutter/network/model/PostItem.dart';
+import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class GifImageWidget extends StatefulWidget {
-  final PostItem postItem;
-
-  GifImageWidget(this.postItem);
-
   @override
   _GifImageWidgetState createState() => _GifImageWidgetState();
 }
 
 class _GifImageWidgetState extends State<GifImageWidget> {
-  bool userRequested = false;
-  bool loadGif = false;
   bool pressed = false;
 
   _GifImageWidgetState();
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserPrefs>(
-      builder: (context, userPrefs, _) {
-        print("UserPrefs: Consumer().builder $loadGif");
-        if (!userRequested) {
-          loadGif = userPrefs.loadGifUrlsPref;
-          print("UserPrefs: Consumer().builder overriden: $loadGif");
-        }
+    return Consumer<PostItemModel>(
+      builder: (context, postItemModel, _) {
         return Listener(
           onPointerDown: (event) => setState(() {
             pressed = !pressed;
@@ -37,14 +25,13 @@ class _GifImageWidgetState extends State<GifImageWidget> {
           }),
           onPointerUp: (event) {
             print("UserPrefs: onPointerUp");
-            userRequested = true;
-            loadGif = !loadGif;
+            postItemModel.toggle();
             pressed = false;
             setState(() => {});
           },
           child: Column(
             children: [
-              loadGifOrEmpty(loadGif),
+              loadGifOrEmpty(postItemModel),
             ],
           ),
         );
@@ -52,10 +39,10 @@ class _GifImageWidgetState extends State<GifImageWidget> {
     );
   }
 
-  Widget loadGifOrEmpty(bool loadGif) {
-    if (loadGif) {
+  Widget loadGifOrEmpty(PostItemModel postItemModel) {
+    if (postItemModel.activated) {
       return Image.network(
-        widget.postItem.gifURL,
+        postItemModel.postItem.gifURL,
         height: 276,
         loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
           if (loadingProgress == null)

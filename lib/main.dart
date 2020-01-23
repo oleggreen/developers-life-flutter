@@ -1,15 +1,16 @@
-import 'package:developerslife_flutter/main_screen/selected_category.dart';
+import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
+import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
+import 'package:developerslife_flutter/main_screen/view_model/user_prefs_model.dart';
 import 'package:developerslife_flutter/second_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'package:provider/provider.dart';
-import 'main_screen/home_screen.dart';
+
+import 'main_screen/view/home_screen.dart';
 import 'localizations.dart';
-import 'main_screen/user_prefs.dart';
 
 void main() {
   runApp(MyApp());
@@ -33,16 +34,7 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown
     ]);
 
-    return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (_) => UserPrefs(),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => SelectedCategory(),
-          ),
-        ],
-        child: MaterialApp(
+    return MaterialApp(
             localizationsDelegates: [
               // ... app-specific localization delegate[s] here
               const DemoLocalizationsDelegate(),
@@ -67,8 +59,20 @@ class MyApp extends StatelessWidget {
               // is not restarted.
               primarySwatch: Colors.orange,
             ),
-            home: MyHomePage(title: 'Developers Lite'),
-            initialRoute: '/',
+        home: MultiProvider(
+            providers: [
+              ChangeNotifierProvider(
+                create: (_) => PostListModel(),
+              ),
+              ChangeNotifierProvider(
+                create: (_) => SelectedCategory(),
+              ),
+              ChangeNotifierProvider(
+                create: (_) => UserPrefs(),
+              ),
+            ],
+            child: MyHomePage(title: 'Developers Lite')),
+        initialRoute: '/',
             routes: {
               DetailsRoute.routeName: (context) => DetailsRoute(),
             },
@@ -87,8 +91,7 @@ class MyApp extends StatelessWidget {
                 );
               }
             }
-        )
-    );
+        );
   }
 }
 

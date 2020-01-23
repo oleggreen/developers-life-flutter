@@ -1,179 +1,87 @@
 import 'dart:io';
-import 'package:developerslife_flutter/main_screen/gif_image.dart';
-import 'package:developerslife_flutter/main_screen/gifs_list.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:developerslife_flutter/data_provider.dart';
+import 'package:developerslife_flutter/main_screen/view/gif_image.dart';
+import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
+import 'package:developerslife_flutter/main_screen/view/main_menu.dart';
+import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
+import 'package:developerslife_flutter/model/categories.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:share/share.dart';
 
 import 'package:provider/provider.dart';
-import '../data_provider.dart';
-import '../localizations.dart';
-import '../main.dart';
-import '../network/model/PostItem.dart';
-import '../network/model/PostResponse.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:developerslife_flutter/main.dart';
+import 'package:developerslife_flutter/network/model/PostItem.dart';
 
 import 'drawer_menu.dart';
-import 'selected_category.dart';
-import 'user_prefs.dart';
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   final String title;
 
   MyHomePage({Key key, this.title}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  bool autoLoadGifs = false;
-
-  @override
   Widget build(BuildContext context) {
-//    _isAutoLoadGifs().
-//    autoLoadGifs = _isAutoLoadGifs();
-    return Consumer<SelectedCategory>(
-        builder: (context, selectedCategoryModel, _) => Scaffold(
-              appBar: AppBar(
-                // Here we take the value from the MyHomePage object that was created by
-                // the App.build method, and use it to set our appbar title.
-                brightness: Brightness.dark,
-                title: Consumer<UserPrefs>(
-                  builder: (context, userPrefs, _) {
-                    print("UserPrefs: Consumer().builder ${userPrefs.loadGifUrlsPref}");
-                    return Text("load gifs: " + userPrefs.loadGifUrlsPref.toString(),
-                        style: TextStyle(color: Colors.white));
-                  },
-                ),
-//          title: Text(getTitleTextByCategory(selectedCategory, context), style: TextStyle(color: Colors.white)),
-                iconTheme: new IconThemeData(color: Colors.white),
-                actions: [
-                  FutureBuilder(
-                    future: _isAutoLoadGifs(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return Center(child: CircularProgressIndicator());
-                      } else {
-                        return PopupMenuButton<MenuItem>(
-                          onSelected: _select,
-                          itemBuilder: (BuildContext context) {
-                            return List()
-                              ..add(
-                                PopupMenuItem(
-                                    value: MenuItem.AUTO_LOAD_GIFS,
-                                    child: Row(children: [
-                                      Checkbox(
-                                          value: autoLoadGifs,
-                                          onChanged: (checked) {
-                                            setState(() {
-                                              _check(checked);
-                                            });
-                                          }),
-                                      Text(DemoLocalizations.of(context).auto_load_gifs)
-                                    ])),
-                              );
-                          },
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
-              drawer: MyDrawerWidget(selectedCategoryModel),
-              body: Container(
-                color: lightGreyColor,
-                child: Center(
-                  // Center is a layout widget. It takes a single child and positions it
-                  // in the middle of the parent.
-                  child: FutureBuilder(
-                      future: getData(selectedCategoryModel.selectedCategory, 0),
-                      builder: (context, snapshot) {
-                        var resultTuple = snapshot.data;
+    return FutureBuilder(
+        future: Provider.of<SelectedCategory>(context, listen: false).loadInitialState(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Consumer<SelectedCategory>(
+                builder: (context, selectedCategoryModel, _) => buildScaffold(context, selectedCategoryModel.selectedCategory)
+            );
+          } else {
+            return Container();
+          }
+        }
+    );
+  }
 
-                        if (snapshot.connectionState != ConnectionState.done) {
-                          print("rebuilding_list. data is null");
+  Scaffold buildScaffold(BuildContext context, Category selectedCategory) {
+    return Scaffold(
+      appBar: AppBar(
+        brightness: Brightness.dark,
+        title: Text(getTitleTextByCategory(selectedCategory, context), style: TextStyle(color: Colors.white)),
+        iconTheme: new IconThemeData(color: Colors.white),
+        actions: [
+          createOverflowMenu()
+        ],
+      ),
+      drawer: MyDrawerWidget(),
+      body: Container(
+        color: lightGreyColor,
+        child: Center(
+          child: Consumer<SelectedCategory>(
+              builder: (context, selectedCategory, _) {
+                var postListModel = Provider.of<PostListModel>(context, listen: false);
+                postListModel.loadCategory(selectedCategory.selectedCategory);
+
+                return Consumer<PostListModel>(
+                    builder: (context, postListModel, _) {
+                      if (postListModel.items.isEmpty) {
+                        if (postListModel.state == PostListState.LOADING) {
                           return Center(child: CircularProgressIndicator());
+                        } else if (postListModel.state == PostListState.ERROR) {
+                          return Text("Some error occured");
                         } else {
-                          PostResponse response = resultTuple?.item2;
-                          if (snapshot.hasError) {
-                            return Text("Some error occured");
-                          } else if (response.totalCount == 0) {
-                            return Container(
-                              padding: EdgeInsets.all(40),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "This category is empty",
-                                style: TextStyle(fontSize: 28),
-                                textAlign: TextAlign.center,
-                              ),
-                            );
-                          } else {
-                            var items = List<PostItem>();
-                            items.addAll(response.result);
-                            print("rebuilding_list. " + items.toString());
-
-                            return ChangeNotifierProvider(
-                              create: (_) =>
-                                  GifsList(selectedCategoryModel.selectedCategory, items, response.totalCount),
-                              child: PostListWidget(),
-                            );
-                          }
+                          return PostListWidget();
                         }
-                      }),
-                ),
-              ),
-            ));
-  }
-
-  PopupMenuItem<MenuItem> buildPopupMenuItem(BuildContext context) {
-    return PopupMenuItem(
-        value: MenuItem.AUTO_LOAD_GIFS,
-        child: Row(children: [
-          Checkbox(
-              value: autoLoadGifs,
-              onChanged: (checked) {
-                setState(() {
-                  _check(checked);
-                });
+                      } else {
+                        return PostListWidget();
+                      }
+                    });
               }),
-          Text(DemoLocalizations.of(context).auto_load_gifs)
-        ]));
-  }
-
-  void _select(MenuItem menuItem) {
-    if (menuItem == MenuItem.AUTO_LOAD_GIFS) {
-      _check(!autoLoadGifs);
-    }
-  }
-
-  void _check(bool checked) {
-    autoLoadGifs = checked;
-    _setAutoLoadGifs(autoLoadGifs);
-    print("UserPrefs: Provider.of().setLoadGifUrlsPref() $autoLoadGifs");
-    Provider.of<UserPrefs>(context, listen: false).setLoadGifUrlsPref(autoLoadGifs);
-  }
-
-  final autoLoadGifsTag = 'autoLoadGifs';
-
-  _setAutoLoadGifs(bool autoLoad) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(autoLoadGifsTag, autoLoad);
-  }
-
-  Future<bool> _isAutoLoadGifs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(autoLoadGifsTag) ?? false;
+        ),
+      ),);
   }
 }
-
-enum MenuItem { AUTO_LOAD_GIFS }
 
 class PostListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<GifsList>(
+    return Consumer<PostListModel>(
       builder: (context, gifsList, _) => NotificationListener<ScrollNotification>(
           // ignore: missing_return
           onNotification: (ScrollNotification scrollInfo) {
@@ -191,28 +99,27 @@ class PostListWidget extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 if (index == gifsList.items.length) {
                   if (gifsList.isAllItemsLoaded()) {
-                    return SizedBox(
-                      height: 10,
-                      width: 10,
-                    );
+                    return Align(alignment: Alignment.center, child: Text("The end"));
                   } else {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(child: CircularProgressIndicator(backgroundColor: Colors.black));
                   }
                 } else {
                   var curTheme = Theme.of(context);
                   var postItem = gifsList.items[index];
 
-                  return buildListPostWidget(postItem, curTheme);
+                  return ChangeNotifierProvider.value(
+                      value: postItem,
+                      child: buildListItemWidget(postItem.postItem, curTheme));
                 }
               })),
     );
   }
 
-  Widget buildListPostWidget(PostItemModel postItemModel, ThemeData curTheme) {
-    var postItem = postItemModel.postItem;
+  Widget buildListItemWidget(PostItem postItem, ThemeData curTheme) {
     var votesCount = postItem.votes;
-    return Card(
-        elevation: 2,
+    return
+        Card(
+            elevation: 2,
         child: Container(
             padding: EdgeInsets.symmetric(vertical: 7, horizontal: 10),
             child: Column(
@@ -233,8 +140,8 @@ class PostListWidget extends StatelessWidget {
                       children: <Widget>[
                         Hero(
                             tag: postItem.previewURL,
-                            child: Image.network(
-                              postItem.previewURL,
+                            child: Image(
+                              image: CachedNetworkImageProvider(postItem.previewURL),
                               height: 276,
                               frameBuilder:
                                   (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
@@ -244,7 +151,7 @@ class PostListWidget extends StatelessWidget {
                                 );
                               },
                             )),
-                        GifImageWidget(postItem),
+                        GifImageWidget(),
                       ],
                     ),
                   ),
