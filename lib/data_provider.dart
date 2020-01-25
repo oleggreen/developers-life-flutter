@@ -46,15 +46,24 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
   }
 }
 
-Future<PostResponse> getRandomPosts(RestClient client) async {
-  List<PostItem> randomItems = List();
-  randomItems.add(await client.getRandomPost());
-  randomItems.add(await client.getRandomPost());
-  randomItems.add(await client.getRandomPost());
-  randomItems.add(await client.getRandomPost());
-  randomItems.add(await client.getRandomPost());
+//Future<PostItem> getRandomPostNotCoube(RestClient client) async {
+//  client.getRandomPost().then(onValue);
+//}
 
-  return PostResponse(result: randomItems, totalCount: -1);
+Future<PostResponse> getRandomPosts(RestClient client) async {
+  var futuresList = Future.wait([
+    client.getRandomPost(),
+    client.getRandomPost(),
+    client.getRandomPost(),
+    client.getRandomPost(),
+    client.getRandomPost()]);
+
+  var randomItems = await futuresList;
+  var filteredItems = randomItems
+      .where((postItem) => postItem.type == "gif")
+      .toList();
+
+  return PostResponse(result: filteredItems, totalCount: -1);
 }
 
 // ignore: missing_return
