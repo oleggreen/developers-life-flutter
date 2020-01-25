@@ -16,23 +16,29 @@ class _GifImageWidgetState extends State<GifImageWidget> {
   Widget build(BuildContext context) {
     return Consumer<PostItemModel>(
       builder: (context, postItemModel, _) {
-        return Listener(
-          onPointerDown: (event) => setState(() {
-            pressed = !pressed;
-          }),
-          onPointerCancel: (event) => setState(() {
-            pressed = false;
-          }),
-          onPointerUp: (event) {
-            print("UserPrefs: onPointerUp");
+        return GestureDetector(
+          onTap: () {
+            print("GifImageWidget: onTap");
             postItemModel.toggle();
-            pressed = false;
-            setState(() => {});
           },
-          child: Column(
-            children: [
-              loadGifOrEmpty(postItemModel),
-            ],
+          child: Listener(
+            onPointerDown: (event) => setState(() {
+              print("GifImageWidget: onPointerDown");
+              pressed = true;
+            }),
+            onPointerCancel: (event) => setState(() {
+              print("GifImageWidget: onPointerCancel");
+              pressed = false;
+            }),
+            onPointerUp: (event) => setState(() {
+              print("GifImageWidget: onPointerUp");
+              pressed = false;
+            }),
+            child: Column(
+              children: [
+                loadGifOrEmpty(postItemModel),
+              ],
+            ),
           ),
         );
       },
@@ -53,7 +59,9 @@ class _GifImageWidgetState extends State<GifImageWidget> {
 
           return Container(
             height: 280,
+            width: double.infinity,
             alignment: Alignment.topCenter,
+            decoration: BoxDecoration(color: Colors.transparent),
             child: Container(
               height: 3.0,
               child: LinearProgressIndicator(
@@ -67,14 +75,20 @@ class _GifImageWidgetState extends State<GifImageWidget> {
       );
     } else {
       return Container(
-        height: 160,
+        height: 280,
         width: double.infinity,
-        padding: EdgeInsets.all(20),
-        decoration: ShapeDecoration(color: pressed ? Color(0x99000000) : Color(0x77000000), shape: CircleBorder()),
-        child: LayoutBuilder(builder: (context, constraint) {
-          return Icon(Icons.play_arrow,
-              color: pressed ? Colors.white : Color(0x77ffffff), size: constraint.biggest.height);
-        }),
+        decoration: BoxDecoration(color: Colors.transparent),
+        alignment: Alignment.center,
+        child: Container(
+          height: 180,
+          width: 180,
+          padding: EdgeInsets.all(20),
+          decoration: ShapeDecoration(color: pressed ? Color(0x99000000) : Color(0x77000000), shape: CircleBorder()),
+          child: LayoutBuilder(builder: (context, constraint) {
+            return Icon(Icons.play_arrow,
+                color: pressed ? Colors.white : Color(0x77ffffff), size: constraint.biggest.height);
+          }),
+        ),
       );
     }
   }
