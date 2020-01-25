@@ -124,11 +124,10 @@ class PostListWidget extends StatelessWidget {
   }
 
   Widget buildListItemWidget(PostItem postItem, ThemeData curTheme) {
-    var votesCount = postItem.votes;
     return
         Card(
             elevation: 2,
-        child: Container(
+            child: Container(
             padding: EdgeInsets.symmetric(vertical: 7, horizontal: 10),
             child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -171,46 +170,51 @@ class PostListWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      "Author: " + postItem.author,
-                                      softWrap: false,
-                                      overflow: TextOverflow.fade,
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(fontSize: 14, color: greyColor),
-                                    ),
-                                    Row(
-                                      children: <Widget>[
-                                        Text(
-                                          "Rating: " + votesCount.toString(),
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.start,
-                                          softWrap: false,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: votesCount > 100 ? curTheme.primaryColor : greyColor),
-                                        ),
-                                        Icon(
-                                          Icons.star,
-                                          size: 17,
-                                          color: votesCount > 1000 ? curTheme.primaryColor : Colors.transparent,
-                                        )
-                                      ],
-                                    ),
-                                  ]),
-                            ),
-                            sharePostLinkWidget(curTheme, postItem),
-                            sharePostLinkWidget2(curTheme, postItem),
+                            buildPostInfoWidget(postItem, curTheme),
+                            buildSharePostLinkButton(curTheme, postItem),
+                            buildShareGifLinkButton(curTheme, postItem),
                           ])),
                 ])));
   }
 
-  Widget sharePostLinkWidget2(ThemeData curTheme, PostItem postItem) {
+  Widget buildPostInfoWidget(PostItem postItem, ThemeData curTheme) {
+    var votesCount = postItem.votes;
+    return Expanded(
+      child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Author: " + postItem.author,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+              textAlign: TextAlign.start,
+              style: TextStyle(fontSize: 14, color: greyColor),
+            ),
+            Row(
+              children: <Widget>[
+                Text(
+                  "Rating: " + votesCount.toString(),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.start,
+                  softWrap: false,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: votesCount > 100 ? curTheme.primaryColor : greyColor),
+                ),
+                Icon(
+                  Icons.star,
+                  size: 17,
+                  color: votesCount > 1000 ? curTheme.primaryColor : Colors.transparent,
+                )
+              ],
+            ),
+          ]),
+    );
+  }
+
+  Widget buildShareGifLinkButton(ThemeData curTheme, PostItem postItem) {
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       return Container(
         decoration: BoxDecoration(
@@ -236,7 +240,7 @@ class PostListWidget extends StatelessWidget {
     }
   }
 
-  Widget sharePostLinkWidget(ThemeData curTheme, PostItem postItem) {
+  Widget buildSharePostLinkButton(ThemeData curTheme, PostItem postItem) {
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       return Container(
           decoration:
