@@ -66,6 +66,23 @@ class PostListModel with ChangeNotifier {
     });
   }
 
+  Future reLoadCurrentCategory() async {
+    _items.clear();
+    state = PostListState.LOADING;
+
+    getData(_selectedCategory, 0).then((result) {
+      _items = result.item2.result.map((item) => PostItemModel(item)).toList();
+      _totalCount = result.item2.totalCount;
+      state = PostListState.IDLE;
+      notifyListeners();
+
+    }).catchError((error) {
+      print(error);
+      state = PostListState.ERROR;
+      notifyListeners();
+    });
+  }
+
   void loadMore() {
     if (state == PostListState.LOADING) return;
 

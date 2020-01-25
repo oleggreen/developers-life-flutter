@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share/share.dart';
 
 import 'package:provider/provider.dart';
@@ -81,38 +82,45 @@ class MyHomePage extends StatelessWidget {
 class PostListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<PostListModel>(
-      builder: (context, gifsList, _) => NotificationListener<ScrollNotification>(
-          // ignore: missing_return
-          onNotification: (ScrollNotification scrollInfo) {
-            if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 500 && !gifsList.isAllItemsLoaded()) {
-              gifsList.loadMore();
-            }
-          },
-          child: ListView.separated(
-              padding: const EdgeInsets.all(8),
-              itemCount: gifsList.items.length + 1,
-              separatorBuilder: (BuildContext context, int index) => Divider(
-                    height: 2,
-                    color: Colors.transparent,
-                  ),
-              itemBuilder: (BuildContext context, int index) {
-                if (index == gifsList.items.length) {
-                  if (gifsList.isAllItemsLoaded()) {
-                    return Align(alignment: Alignment.center, child: Text("The end"));
-                  } else {
-                    return Center(child: CircularProgressIndicator(backgroundColor: Colors.black));
-                  }
-                } else {
-                  var curTheme = Theme.of(context);
-                  var postItem = gifsList.items[index];
+    return
+      Consumer<PostListModel>(
+        builder: (context, gifsList, _) =>
+            RefreshIndicator(
+              onRefresh: () => gifsList.reLoadCurrentCategory(),
+              child: NotificationListener<ScrollNotification>(
+                // ignore: missing_return
+                  onNotification: (ScrollNotification scrollInfo) {
+                    if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 500 && !gifsList.isAllItemsLoaded()) {
+                      gifsList.loadMore();
+                    }
+                  },
+                  child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(8),
+                      itemCount: gifsList.items.length + 1,
+                      separatorBuilder: (BuildContext context, int index) =>
+                          Divider(
+                            height: 2,
+                            color: Colors.transparent,
+                          ),
+                      itemBuilder: (BuildContext context, int index) {
+                        if (index == gifsList.items.length) {
+                          if (gifsList.isAllItemsLoaded()) {
+                            return Align(alignment: Alignment.center, child: Text("The end"));
+                          } else {
+                            return Center(child: CircularProgressIndicator(backgroundColor: Colors.black));
+                          }
+                        } else {
+                          var curTheme = Theme.of(context);
+                          var postItem = gifsList.items[index];
 
-                  return ChangeNotifierProvider.value(
-                      value: postItem,
-                      child: buildListItemWidget(postItem.postItem, curTheme));
-                }
-              })),
-    );
+                          return ChangeNotifierProvider.value(
+                              value: postItem,
+                              child: buildListItemWidget(postItem.postItem, curTheme));
+                        }
+                      })),
+            ),
+      );
   }
 
   Widget buildListItemWidget(PostItem postItem, ThemeData curTheme) {
