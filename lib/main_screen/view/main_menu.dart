@@ -1,4 +1,4 @@
-import 'package:developerslife_flutter/localizations.dart';
+import 'package:developerslife_flutter/generated/l10n.dart';
 import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
 import 'package:developerslife_flutter/main_screen/view_model/user_prefs_model.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ PopupMenuItem<MenuItem> popupMenuItem2(BuildContext context) {
   return PopupMenuItem(
       value: MenuItem.AUTO_LOAD_GIFS,
       child: CheckboxListTile(
-        title: Text(DemoLocalizations.of(context).auto_load_gifs),
+        title: Text(S.of(context).autoLoadGifs),
         value: userPrefs.loadGifUrlsPref,
         onChanged: (checked) {
           userPrefs.setLoadGifUrlsPref(checked);

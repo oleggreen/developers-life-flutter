@@ -8,12 +8,11 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'network/RestService.dart';
 import 'model/categories.dart';
 import 'package:dio/dio.dart';
-import 'network/model/PostItem.dart';
 import 'network/model/PostResponse.dart';
 
 import 'package:tuple/tuple.dart';
 
-import 'localizations.dart';
+import 'package:developerslife_flutter/generated/l10n.dart';
 
 /// Assumes the given path is a text-file-asset.
 Future<String> getFileData(String path) async {
@@ -87,11 +86,11 @@ String getUrlByCategory(Category category) {
 // ignore: missing_return
 String getTitleTextByCategory(Category category, BuildContext context) {
   switch(category) {
-    case Category.LATEST: return DemoLocalizations.of(context).latest;
-    case Category.TOP: return DemoLocalizations.of(context).bestOfAllTime;
-    case Category.MONTHLY: return DemoLocalizations.of(context).bestOfTheMonth;
-    case Category.HOT: return DemoLocalizations.of(context).hot;
-    case Category.RANDOM: return DemoLocalizations.of(context).random;
-    case Category.FAVORITE: return DemoLocalizations.of(context).favorite;
+    case Category.LATEST: return S.of(context).latest;
+    case Category.TOP: return S.of(context).bestOfAllTime;
+    case Category.MONTHLY: return S.of(context).bestOfTheMonth;
+    case Category.HOT: return S.of(context).hot;
+    case Category.RANDOM: return S.of(context).random;
+    case Category.FAVORITE: return S.of(context).favorite;
   }
 }

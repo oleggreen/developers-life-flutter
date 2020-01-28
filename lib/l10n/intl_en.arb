@@ -1,0 +1,15 @@
+{
+  "latest": "Latest",
+  "bestOfAllTime": "Best of all time",
+  "bestOfTheMonth": "Best of the Month",
+  "hot": "Hot",
+  "random": "Random",
+  "favorite": "Favorite",
+  "autoLoadGifs" : "Auto load all gifs",
+
+  "pageHomeConfirm": "Confirm",
+  "pageHomeWelcome": "Welcome {name}",
+  "pageHomeWelcomeGender": "{gender, select, male {Hi man!} female {Hi woman!} other {Hi there!}}",
+  "pageNotificationsCount": "{howMany, plural, one{1 message} other{{howMany} messages}}",
+  "pageNotificationsCount2": "Yes"
+}

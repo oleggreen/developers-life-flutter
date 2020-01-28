@@ -10,7 +10,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'main_screen/view/home_screen.dart';
-import 'localizations.dart';
+import 'package:developerslife_flutter/generated/l10n.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,15 +37,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
             localizationsDelegates: [
               // ... app-specific localization delegate[s] here
-              const DemoLocalizationsDelegate(),
+              S.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: [
-              const Locale('en'), // English
-              const Locale('uk'), // Ukrainian
-            ],
+            supportedLocales: S.delegate.supportedLocales,
             title: 'Flutter Demo',
             theme: ThemeData(
               // This is the theme of your application.

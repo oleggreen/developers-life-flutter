@@ -10,7 +10,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share/share.dart';
 
 import 'package:provider/provider.dart';
@@ -26,6 +25,7 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return FutureBuilder(
         future: Provider.of<SelectedCategory>(context, listen: false).loadInitialState(),
         builder: (context, snapshot) {
