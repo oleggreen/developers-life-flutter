@@ -13,15 +13,18 @@ PopupMenuItem<MenuItem> popupMenuItem2(BuildContext context) {
   var userPrefs = Provider.of<UserPrefs>(context, listen: false);
   return PopupMenuItem(
       value: MenuItem.AUTO_LOAD_GIFS,
-      child: CheckboxListTile(
-        title: Text(S.of(context).autoLoadGifs),
-        value: userPrefs.loadGifUrlsPref,
-        onChanged: (checked) {
-          userPrefs.setLoadGifUrlsPref(checked);
-          Provider.of<PostListModel>(context, listen: false).setAutoLoadGifs(checked);
+      child: Container(
+        width: 300,
+        child: CheckboxListTile(
+          title: Text(S.of(context).autoLoadGifs),
+          value: userPrefs.loadGifUrlsPref,
+          onChanged: (checked) {
+            userPrefs.setLoadGifUrlsPref(checked);
+            Provider.of<PostListModel>(context, listen: false).setAutoLoadGifs(checked);
 
-          Navigator.pop(context, MenuItem.AUTO_LOAD_GIFS);
-        },
+            Navigator.pop(context, MenuItem.AUTO_LOAD_GIFS);
+          },
+        ),
       ));
 }
 
