@@ -1,7 +1,6 @@
 import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
 import 'package:developerslife_flutter/model/categories.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:developerslife_flutter/data_provider.dart';
 import 'package:developerslife_flutter/main.dart';
@@ -64,7 +63,7 @@ class MyDrawerWidget extends StatelessWidget {
           title: Text(titleTextByCategory, style: TextStyle(color: textColor, fontSize: 18)),
           trailing: Icon(Icons.arrow_forward),
           onTap: () {
-            Fluttertoast.showToast(msg: "Selected: " + titleTextByCategory);
+//            Fluttertoast.showToast(msg: "Selected: " + titleTextByCategory);
             Navigator.pop(context);
 
             var viewModel = Provider.of<SelectedCategory>(context, listen: false);
