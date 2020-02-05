@@ -28,8 +28,12 @@ class PostListWidget extends StatelessWidget {
       },
 
       child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+        const listPadding = 8.0;
+        var heightConstraint = constraints.maxHeight - listPadding * 2;
+        var widthConstraint = constraints.maxWidth - listPadding * 2;
+
         return ListView.separated(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(listPadding),
             physics: const AlwaysScrollableScrollPhysics(),
             itemCount: postListModel.items.length + 1,
             separatorBuilder: (BuildContext context, int index) => Divider(
@@ -40,10 +44,9 @@ class PostListWidget extends StatelessWidget {
               if (index == postListModel.items.length) {
                 if (postListModel.items.length == 0) {
                   if (postListModel.state == PostListState.ERROR) {
-                    return SizedBox(
-                        height: constraints.maxHeight, width: constraints.maxWidth, child: Center(child: Text("Some error occured.TODO")));
+                    return SizedBox(height: heightConstraint, width: widthConstraint, child: Center(child: Text("Some error occured.TODO")));
                   } else {
-                    return SizedBox(height: constraints.maxHeight, width: constraints.maxWidth, child: Center(child: Text("Empty state.TODO")));
+                    return SizedBox(height: heightConstraint, width: widthConstraint, child: Center(child: Text("Empty state.TODO")));
                   }
                 } else if (postListModel.isAllItemsLoaded()) {
                   return Center(child: Text("The end"));
