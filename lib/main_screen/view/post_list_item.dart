@@ -104,7 +104,7 @@ class PostListWidgetBuilder {
   }
 
   static Widget buildShareGifLinkButton(BuildContext context, ThemeData curTheme, PostItem postItem) {
-//    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       return Container(
         decoration: BoxDecoration(
             color: curTheme.primaryColor, borderRadius: BorderRadius.only(bottomRight: Radius.circular(7))),
@@ -118,26 +118,18 @@ class PostListWidgetBuilder {
             ),
             child: Icon(Icons.share, color: curTheme.primaryColor),
             onPressed: () => Share.share(postItem.gifURL),
-            onLongPress: () {
-
-              navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString() });
-
-//              Navigator.pushNamed(context, detailsRoute, arguments: postItem);
-
-//              Navigator.push(
-//                context,
-//                MaterialPageRoute(builder: (context) => SecondRoute(postItem)),
-//              );
-            },
+//            onLongPress: () {
+//              navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString() });
+//            },
             color: curTheme.primaryColorLight,
             textColor: Colors.white,
             splashColor: Colors.white,
           ),
         ),
       );
-//    } else {
-//      return Container();
-//    }
+    } else {
+      return Container();
+    }
   }
 
   static Widget buildSharePostLinkButton(ThemeData curTheme, PostItem postItem) {
