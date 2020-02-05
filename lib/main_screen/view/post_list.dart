@@ -55,7 +55,7 @@ class PostListWidget extends StatelessWidget {
                 var postItem = postListModel.items[index];
 
                 return ChangeNotifierProvider.value(
-                    value: postItem, child: PostListWidgetBuilder.buildListItemWidget(postItem.postItem, curTheme));
+                    value: postItem, child: PostListWidgetBuilder.buildListItemWidget(context, postItem.postItem, curTheme));
               }
             });
       }),

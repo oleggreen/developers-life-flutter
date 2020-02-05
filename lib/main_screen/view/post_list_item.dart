@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:developerslife_flutter/main.dart';
 import 'package:developerslife_flutter/main_screen/view/gif_image.dart';
 import 'package:developerslife_flutter/network/model/PostItem.dart';
+import 'package:developerslife_flutter/routing/router.dart';
+import 'package:developerslife_flutter/second_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
@@ -10,7 +12,7 @@ import 'package:share/share.dart';
 
 //TODO refactor
 class PostListWidgetBuilder {
-  static Widget buildListItemWidget(PostItem postItem, ThemeData curTheme) {
+  static Widget buildListItemWidget(BuildContext context, PostItem postItem, ThemeData curTheme) {
     return
       Card(
           elevation: 2,
@@ -59,7 +61,7 @@ class PostListWidgetBuilder {
                             children: [
                               buildPostInfoWidget(postItem, curTheme),
                               buildSharePostLinkButton(curTheme, postItem),
-                              buildShareGifLinkButton(curTheme, postItem),
+                              buildShareGifLinkButton(context, curTheme, postItem),
                             ])),
                   ])));
   }
@@ -101,8 +103,8 @@ class PostListWidgetBuilder {
     );
   }
 
-  static Widget buildShareGifLinkButton(ThemeData curTheme, PostItem postItem) {
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+  static Widget buildShareGifLinkButton(BuildContext context, ThemeData curTheme, PostItem postItem) {
+//    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       return Container(
         decoration: BoxDecoration(
             color: curTheme.primaryColor, borderRadius: BorderRadius.only(bottomRight: Radius.circular(7))),
@@ -116,15 +118,26 @@ class PostListWidgetBuilder {
             ),
             child: Icon(Icons.share, color: curTheme.primaryColor),
             onPressed: () => Share.share(postItem.gifURL),
+            onLongPress: () {
+
+              navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString() });
+
+//              Navigator.pushNamed(context, detailsRoute, arguments: postItem);
+
+//              Navigator.push(
+//                context,
+//                MaterialPageRoute(builder: (context) => SecondRoute(postItem)),
+//              );
+            },
             color: curTheme.primaryColorLight,
             textColor: Colors.white,
             splashColor: Colors.white,
           ),
         ),
       );
-    } else {
-      return Container();
-    }
+//    } else {
+//      return Container();
+//    }
   }
 
   static Widget buildSharePostLinkButton(ThemeData curTheme, PostItem postItem) {

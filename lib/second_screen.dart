@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:developerslife_flutter/data_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
@@ -8,49 +9,75 @@ import 'network/model/PostItem.dart';
 class SecondRoute extends StatelessWidget {
 
   final PostItem postItem;
+  final int postId;
 
-  SecondRoute(this.postItem);
+  SecondRoute(this.postId, this.postItem);
+
+  Future<PostItem> _getPostDetails() async {
+    if (postItem != null) {
+      return postItem;
+
+    } else {
+      return await getPostDetails(postId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          brightness: Brightness.dark,
-          title: Text("Post: " + postItem.id.toString(), style: TextStyle(color: Colors.white)),
-          iconTheme: new IconThemeData(color: Colors.white),
-        ),
-        body: Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: <Widget>[
-              Text(
-                postItem.description,
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                    fontSize: 16,
-                    color: darkGreyColor
-                ),
-              ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: Hero(
-                    tag: postItem.previewURL,
-                    child: Image.network(
-                      postItem.previewURL,
-                      frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
-                        return Padding(
-                          padding: EdgeInsets.all(2.0),
-                          child: child,
-                        );
-                      },
-                    )),
-              )
+      appBar: AppBar(
+        brightness: Brightness.dark,
+        title: Text("Post " + postId.toString(), style: TextStyle(color: Colors.white)),
+        iconTheme: new IconThemeData(color: Colors.white),
+      ),
+      body: FutureBuilder<PostItem>(
+        future: _getPostDetails(),
+        builder: (BuildContext context, AsyncSnapshot<PostItem> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError || !snapshot.hasData) {
+              return Text("Some error happened");
+            } else {
+              return buildPostItemBody(snapshot.data);
+            }
+          } else {
+            return CircularProgressIndicator();
+          }
+        },
+      ),
+    );
+  }
 
-            ],
-          ),
-        ));
+  Widget buildPostItemBody(PostItem postItem) {
+    return Container(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: <Widget>[
+            Text(
+              postItem.description,
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                  fontSize: 16,
+                  color: darkGreyColor
+              ),
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Hero(
+                  tag: postItem.previewURL,
+                  child: Image.network(
+                    postItem.previewURL,
+                    frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
+                      return Padding(
+                        padding: EdgeInsets.all(2.0),
+                        child: child,
+                      );
+                    },
+                  )),
+            )
+
+          ],
+        ),
+      );
   }
 }
 

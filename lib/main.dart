@@ -1,6 +1,8 @@
 import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
 import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
 import 'package:developerslife_flutter/main_screen/view_model/user_prefs_model.dart';
+import 'package:developerslife_flutter/routing/navigation_service.dart';
+import 'package:developerslife_flutter/routing/router.dart';
 import 'package:developerslife_flutter/second_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,8 @@ var darkGreyColor = Color(0xff626262);
 MaterialLocalizations of(BuildContext context) {
   return Localizations.of<MaterialLocalizations>(context, MaterialLocalizations);
 }
+
+var navigationService = NavigationService();
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -63,24 +67,12 @@ class MyApp extends StatelessWidget {
             create: (_) => UserPrefs(),
           ),
         ], child: MyHomePage(title: 'Developers Lite')),
-        initialRoute: '/',
-        routes: {
-          DetailsRoute.routeName: (context) => DetailsRoute(),
-        },
-        //ignore: missing_return
-        onGenerateRoute: (settings) {
-          if (settings.name == DetailsRoute.routeName) {
-            // Cast the arguments to the correct type: ScreenArguments.
-//                final DetailsRouteArguments args = settings.arguments;
-
-            // Then, extract the required data from the arguments and
-            // pass the data to the correct screen.
-            return MaterialPageRoute(
-              builder: (context) {
-                return DetailsRoute();
-              },
-            );
-          }
-        });
+        initialRoute: homeRoute,
+//        routes: {
+//          DetailsRoute.routeName: (context) => DetailsRoute(),
+//        },
+        navigatorKey: navigationService.navigatorKey,
+        onGenerateRoute: generateRoute,
+    );
   }
 }

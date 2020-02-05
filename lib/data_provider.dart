@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:developerslife_flutter/network/model/PostItem.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
@@ -24,7 +25,7 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
 
   if (kIsWeb || Platform.isMacOS) {
     var dataString = await getFileData("assets/best_of_all_time.json");
-    print("getData:result: " + dataString);
+//    print("getData:result: " + dataString);
     PostResponse data = PostResponse.fromJsonMap(json.decode(dataString));
     return Tuple2(pageNumber, data);
 
@@ -40,7 +41,7 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
       response = await client.getPosts(getUrlByCategory(category), pageNumber);
     }
 
-    print("getData:result: ${response.result.toString()}");
+//    print("getData:result: ${response.result.toString()}");
     return Tuple2(pageNumber, response);
   }
 }
@@ -63,6 +64,12 @@ Future<PostResponse> getRandomPosts(RestClient client) async {
       .toList();
 
   return PostResponse(result: filteredItems, totalCount: -1);
+}
+
+Future<PostItem> getPostDetails(int postId) async {
+  final dio = Dio();
+  final client = RestClient(dio);
+  return await client.getPostDetails(postId);
 }
 
 // ignore: missing_return

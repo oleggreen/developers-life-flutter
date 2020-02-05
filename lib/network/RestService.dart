@@ -6,14 +6,10 @@ import 'model/PostResponse.dart';
 
 part 'RestService.g.dart';
 
-//flutter pub run build_runner build
-//or
-//pub run build_runner build
+//flutter pub run build_runner build --delete-conflicting-outputs
 @RestApi(baseUrl: "https://developerslife.ru/")
 abstract class RestClient {
   factory RestClient(Dio dio) = _RestClient;
-
-  //@GET("/{id}?json=true") details
 
   static const String TOP_CATEGORY = "top";
   static const String MONTHLY_CATEGORY = "monthly";
@@ -25,4 +21,7 @@ abstract class RestClient {
 
   @GET("/random?json=true")
   Future<PostItem> getRandomPost();
+
+  @GET("/{id}?json=true")
+  Future<PostItem> getPostDetails(@Path() int id);
 }
