@@ -49,24 +49,95 @@ class PostListWidget extends StatelessWidget {
                   } else {
                     return buildEmptyStateWidget(context, heightConstraint, widthConstraint);
                   }
-                } else if (postListModel.isAllItemsLoaded()) {
-                  return Center(child: Text("The end"));
                 } else {
-                  return Center(child: CircularProgressIndicator(backgroundColor: Colors.black));
+                  if (postListModel.isAllItemsLoaded()) {
+                    return buildEndOfPostsWidget(context);
+                  } else if (postListModel.state == PostListState.ERROR) {
+                    return buildErrorLoadNewPostsWidget(context);
+                  } else {
+                    return Center(child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: CircularProgressIndicator(backgroundColor: Colors.orangeAccent),
+                    ));
+                  }
                 }
               } else {
                 var curTheme = Theme.of(context);
                 var postItem = postListModel.items[index];
 
                 return ChangeNotifierProvider.value(
-                    value: postItem, child: PostListWidgetBuilder.buildListItemWidget(context, postItem.postItem, curTheme));
+                    value: postItem,
+                    child: PostListWidgetBuilder.buildListItemWidget(context, postItem.postItem, curTheme),
+                );
               }
             });
       }),
     );
   }
 
-  SizedBox buildEmptyStateWidget(BuildContext context, double heightConstraint, double widthConstraint) =>
+  Widget buildErrorLoadNewPostsWidget(BuildContext context) =>
+      Center(
+        child: Container(
+          padding: EdgeInsets.only(
+            left: 10,
+            right: 10,
+            top: 5,
+            bottom: 15,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                S.of(context).failToLoadNewPosts,
+                style: TextStyle(color: Colors.black, fontSize: 20),
+              ),
+              Container(
+                width: 10,
+              ),
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    side: BorderSide(color: Colors.orange, width: 2)),
+                color: Colors.orangeAccent,
+                child: Text(
+                  S.of(context).retry,
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                onPressed: () => Provider.of<PostListModel>(context, listen: false).loadMore(),
+              )
+            ],
+          ),
+        ),
+      );
+
+  Widget buildEndOfPostsWidget(BuildContext context) =>
+      Center(
+        child: Container(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 5,
+            bottom: 5,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.orangeAccent,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            boxShadow: [
+              new BoxShadow(
+                color: Colors.grey,
+                offset: new Offset(1, 2),
+                blurRadius: 3,
+              )
+            ],
+          ),
+          child: Text(
+            S.of(context).endOfPosts,
+            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+
+  Widget buildEmptyStateWidget(BuildContext context, double heightConstraint, double widthConstraint) =>
       SizedBox(height: heightConstraint,
         width: widthConstraint,
         child: Padding(
@@ -102,7 +173,7 @@ class PostListWidget extends StatelessWidget {
         ),
       );
 
-  SizedBox buildErrorLoadWidget(BuildContext context, double heightConstraint, double widthConstraint) =>
+  Widget buildErrorLoadWidget(BuildContext context, double heightConstraint, double widthConstraint) =>
       SizedBox(height: heightConstraint,
         width: widthConstraint,
         child: Padding(

@@ -10,6 +10,9 @@
   "failToLoadDataRecommendation" : "Check your internet connection\n and try to swipe down ↓ to reload.",
   "emptyStateMsg" : "Nothing to show",
   "emptyStateDetails" : "Seems that this category is empty.",
+  "endOfPosts" : "The end",
+  "failToLoadNewPosts" : "Failed to load",
+  "retry" : "Retry",
 
   "pageHomeConfirm": "Confirm",
   "pageHomeWelcome": "Welcome {name}",

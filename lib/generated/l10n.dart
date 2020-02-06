@@ -128,6 +128,33 @@ class S {
     );
   }
 
+  String get endOfPosts {
+    return Intl.message(
+      'The end',
+      name: 'endOfPosts',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get failToLoadNewPosts {
+    return Intl.message(
+      'Failed to load',
+      name: 'failToLoadNewPosts',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get retry {
+    return Intl.message(
+      'Retry',
+      name: 'retry',
+      desc: '',
+      args: [],
+    );
+  }
+
   String get pageHomeConfirm {
     return Intl.message(
       'Confirm',

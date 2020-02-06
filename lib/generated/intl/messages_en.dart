@@ -32,8 +32,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "bestOfTheMonth" : MessageLookupByLibrary.simpleMessage("Best of the Month"),
     "emptyStateDetails" : MessageLookupByLibrary.simpleMessage("Seems that this category is empty."),
     "emptyStateMsg" : MessageLookupByLibrary.simpleMessage("Nothing to show"),
+    "endOfPosts" : MessageLookupByLibrary.simpleMessage("The end"),
     "failToLoadDataMsg" : MessageLookupByLibrary.simpleMessage("Fail to load data"),
     "failToLoadDataRecommendation" : MessageLookupByLibrary.simpleMessage("Check your internet connection\n and try to swipe down ↓ to reload."),
+    "failToLoadNewPosts" : MessageLookupByLibrary.simpleMessage("Failed to load"),
     "favorite" : MessageLookupByLibrary.simpleMessage("Favorite"),
     "hot" : MessageLookupByLibrary.simpleMessage("Hot"),
     "latest" : MessageLookupByLibrary.simpleMessage("Latest"),
@@ -42,6 +44,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pageHomeWelcomeGender" : m1,
     "pageNotificationsCount" : m2,
     "pageNotificationsCount2" : MessageLookupByLibrary.simpleMessage("Yes"),
-    "random" : MessageLookupByLibrary.simpleMessage("Random")
+    "random" : MessageLookupByLibrary.simpleMessage("Random"),
+    "retry" : MessageLookupByLibrary.simpleMessage("Retry")
   };
 }
