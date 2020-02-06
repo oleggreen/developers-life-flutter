@@ -7,6 +7,7 @@ import 'package:developerslife_flutter/second_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
+import 'package:developerslife_flutter/generated/l10n.dart';
 
 import 'package:share/share.dart';
 
@@ -59,14 +60,14 @@ class PostListWidgetBuilder {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              buildPostInfoWidget(postItem, curTheme),
+                              buildPostInfoWidget(context, postItem, curTheme),
                               buildSharePostLinkButton(curTheme, postItem),
                               buildShareGifLinkButton(context, curTheme, postItem),
                             ])),
                   ])));
   }
 
-  static Widget buildPostInfoWidget(PostItem postItem, ThemeData curTheme) {
+  static Widget buildPostInfoWidget(BuildContext context, PostItem postItem, ThemeData curTheme) {
     var votesCount = postItem.votes;
     return Expanded(
       child: Column(
@@ -75,7 +76,7 @@ class PostListWidgetBuilder {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              "Author: " + postItem.author,
+              S.of(context).authorLabel + postItem.author,
               softWrap: false,
               overflow: TextOverflow.fade,
               textAlign: TextAlign.start,
@@ -84,7 +85,7 @@ class PostListWidgetBuilder {
             Row(
               children: <Widget>[
                 Text(
-                  "Rating: " + votesCount.toString(),
+                  S.of(context).ratingLabel + votesCount.toString(),
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.start,
                   softWrap: false,

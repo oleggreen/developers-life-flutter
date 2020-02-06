@@ -1,0 +1,26 @@
+{
+  "appName" : "Developers Lite",
+  "latest": "Последние",
+  "bestOfAllTime": "Лучшие за все время",
+  "bestOfTheMonth": "Лучшие за месяц",
+  "hot": "Гарячие",
+  "random": "Случайные",
+  "favorite": "Любимые",
+  "autoLoadGifs" : "Автоматически загружать Гифки",
+  "failToLoadDataMsg" : "Ошибка загрузки",
+  "failToLoadDataRecommendation" : "Проверте интернет соединение\n и проведите пальцем вниз ↓ чтоб перезагрузить данные.",
+  "emptyStateMsg" : "Нечего показывать",
+  "emptyStateDetails" : "Кажется эта категория пуста.",
+  "endOfPosts" : "Конец",
+  "failToLoadNewPosts" : "Ошибка загрузки",
+  "retry" : "Повторить",
+  "devLifeName" : "Жизнь разработчиков",
+  "authorLabel" : "Автор: ",
+  "ratingLabel" : "Рейтинг: ",
+  
+  "pageHomeConfirm": "Confirm",
+  "pageHomeWelcome": "Welcome {name}",
+  "pageHomeWelcomeGender": "{gender, select, male {Hi man!} female {Hi woman!} other {Hi there!}}",
+  "pageNotificationsCount": "{howMany, plural, one{1 message} other{{howMany} messages}}",
+  "pageNotificationsCount2": "Yes"
+}

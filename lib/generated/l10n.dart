@@ -29,6 +29,15 @@ class S {
 
   final String localeName;
 
+  String get appName {
+    return Intl.message(
+      'Developers Lite',
+      name: 'appName',
+      desc: '',
+      args: [],
+    );
+  }
+
   String get latest {
     return Intl.message(
       'Latest',
@@ -155,6 +164,33 @@ class S {
     );
   }
 
+  String get devLifeName {
+    return Intl.message(
+      'Developers life',
+      name: 'devLifeName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get authorLabel {
+    return Intl.message(
+      'Author: ',
+      name: 'authorLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get ratingLabel {
+    return Intl.message(
+      'Rating: ',
+      name: 'ratingLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
   String get pageHomeConfirm {
     return Intl.message(
       'Confirm',
@@ -211,7 +247,7 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
 
   List<Locale> get supportedLocales {
     return const <Locale>[
-      Locale('uk', ''), Locale('en', ''),
+      Locale('uk', ''), Locale('en', ''), Locale('ru', ''),
     ];
   }
 

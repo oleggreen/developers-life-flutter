@@ -1,3 +1,4 @@
+import 'package:developerslife_flutter/generated/l10n.dart';
 import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
 import 'package:developerslife_flutter/model/categories.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class MyDrawerWidget extends StatelessWidget {
                         Positioned(
                             bottom: 10.0,
                             left: 12.0,
-                            child: Text("Developers life", style: TextStyle(fontSize: 16, color: darkGreyColor)))
+                            child: Text(S.of(context).devLifeName, style: TextStyle(fontSize: 16, color: darkGreyColor)))
                       ],
                     ),
                     decoration: BoxDecoration(

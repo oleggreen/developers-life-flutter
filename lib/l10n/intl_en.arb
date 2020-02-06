@@ -1,4 +1,5 @@
 {
+  "appName" : "Developers Lite",
   "latest": "Latest",
   "bestOfAllTime": "Best of all time",
   "bestOfTheMonth": "Best of the Month",
@@ -13,6 +14,9 @@
   "endOfPosts" : "The end",
   "failToLoadNewPosts" : "Failed to load",
   "retry" : "Retry",
+  "devLifeName" : "Developers life",
+  "authorLabel" : "Author: ",
+  "ratingLabel" : "Rating: ",
 
   "pageHomeConfirm": "Confirm",
   "pageHomeWelcome": "Welcome {name}",

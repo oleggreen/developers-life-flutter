@@ -27,9 +27,18 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
+    "appName" : MessageLookupByLibrary.simpleMessage("Developers Lite"),
+    "authorLabel" : MessageLookupByLibrary.simpleMessage("Автор: "),
     "autoLoadGifs" : MessageLookupByLibrary.simpleMessage("Автоматично завантажувати Гіфки"),
     "bestOfAllTime" : MessageLookupByLibrary.simpleMessage("Найкращі за весь час"),
     "bestOfTheMonth" : MessageLookupByLibrary.simpleMessage("Найкращі за місяць"),
+    "devLifeName" : MessageLookupByLibrary.simpleMessage("Життя розробників"),
+    "emptyStateDetails" : MessageLookupByLibrary.simpleMessage("Здається ця категорія пуста."),
+    "emptyStateMsg" : MessageLookupByLibrary.simpleMessage("Нічого немає"),
+    "endOfPosts" : MessageLookupByLibrary.simpleMessage("Кінець"),
+    "failToLoadDataMsg" : MessageLookupByLibrary.simpleMessage("Помилка завантаження"),
+    "failToLoadDataRecommendation" : MessageLookupByLibrary.simpleMessage("Перевірте інтернет з\'єднання\n і проведіть пальцем вниз ↓ щоб перезавантажити дані."),
+    "failToLoadNewPosts" : MessageLookupByLibrary.simpleMessage("Помилка завантаження"),
     "favorite" : MessageLookupByLibrary.simpleMessage("Улюблені"),
     "hot" : MessageLookupByLibrary.simpleMessage("Гарячі"),
     "latest" : MessageLookupByLibrary.simpleMessage("Останні"),
@@ -38,6 +47,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "pageHomeWelcomeGender" : m1,
     "pageNotificationsCount" : m2,
     "pageNotificationsCount2" : MessageLookupByLibrary.simpleMessage("Yes"),
-    "random" : MessageLookupByLibrary.simpleMessage("Випадкові")
+    "random" : MessageLookupByLibrary.simpleMessage("Випадкові"),
+    "ratingLabel" : MessageLookupByLibrary.simpleMessage("Рейтинг: "),
+    "retry" : MessageLookupByLibrary.simpleMessage("Повторити")
   };
 }

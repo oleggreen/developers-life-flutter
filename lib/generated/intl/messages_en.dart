@@ -27,9 +27,12 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
+    "appName" : MessageLookupByLibrary.simpleMessage("Developers Lite"),
+    "authorLabel" : MessageLookupByLibrary.simpleMessage("Author: "),
     "autoLoadGifs" : MessageLookupByLibrary.simpleMessage("Auto load all gifs"),
     "bestOfAllTime" : MessageLookupByLibrary.simpleMessage("Best of all time"),
     "bestOfTheMonth" : MessageLookupByLibrary.simpleMessage("Best of the Month"),
+    "devLifeName" : MessageLookupByLibrary.simpleMessage("Developers life"),
     "emptyStateDetails" : MessageLookupByLibrary.simpleMessage("Seems that this category is empty."),
     "emptyStateMsg" : MessageLookupByLibrary.simpleMessage("Nothing to show"),
     "endOfPosts" : MessageLookupByLibrary.simpleMessage("The end"),
@@ -45,6 +48,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pageNotificationsCount" : m2,
     "pageNotificationsCount2" : MessageLookupByLibrary.simpleMessage("Yes"),
     "random" : MessageLookupByLibrary.simpleMessage("Random"),
+    "ratingLabel" : MessageLookupByLibrary.simpleMessage("Rating: "),
     "retry" : MessageLookupByLibrary.simpleMessage("Retry")
   };
 }

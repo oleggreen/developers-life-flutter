@@ -3,7 +3,6 @@ import 'package:developerslife_flutter/main_screen/view_model/selected_category_
 import 'package:developerslife_flutter/main_screen/view_model/user_prefs_model.dart';
 import 'package:developerslife_flutter/routing/navigation_service.dart';
 import 'package:developerslife_flutter/routing/router.dart';
-import 'package:developerslife_flutter/second_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,7 +42,7 @@ class MyApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.delegate.supportedLocales,
-        title: 'Flutter Demo',
+        title: "Developers Lite",
         theme: ThemeData(
           // This is the theme of your application.
           //
@@ -56,23 +55,23 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.orange,
         ),
-        home: MultiProvider(providers: [
-          ChangeNotifierProvider(
-            create: (_) => PostListModel(),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => SelectedCategory(),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => UserPrefs(),
-          ),
-        ], child: MyHomePage(title: 'Developers Lite')),
-        initialRoute: homeRoute,
-//        routes: {
-//          DetailsRoute.routeName: (context) => DetailsRoute(),
-//        },
-        navigatorKey: navigationService.navigatorKey,
-        onGenerateRoute: generateRoute,
+      home: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+              create: (_) => PostListModel(),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => SelectedCategory(),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => UserPrefs(),
+            ),
+          ],
+          child: MyHomePage(title: "Developers Lite")),
+
+      initialRoute: homeRoute,
+      navigatorKey: navigationService.navigatorKey,
+      onGenerateRoute: generateRoute,
     );
   }
 }
