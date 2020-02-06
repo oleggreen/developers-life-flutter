@@ -47,7 +47,7 @@ class PostListWidget extends StatelessWidget {
                   if (postListModel.state == PostListState.ERROR) {
                     return buildErrorLoadWidget(context, heightConstraint, widthConstraint);
                   } else {
-                    return SizedBox(height: heightConstraint, width: widthConstraint, child: Center(child: Text("Empty state.TODO")));
+                    return buildEmptyStateWidget(context, heightConstraint, widthConstraint);
                   }
                 } else if (postListModel.isAllItemsLoaded()) {
                   return Center(child: Text("The end"));
@@ -65,6 +65,42 @@ class PostListWidget extends StatelessWidget {
       }),
     );
   }
+
+  SizedBox buildEmptyStateWidget(BuildContext context, double heightConstraint, double widthConstraint) =>
+      SizedBox(height: heightConstraint,
+        width: widthConstraint,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.free_breakfast,
+                  size: 150,
+                  color: Colors.orange,
+                ),
+                Container(
+                  height: 20,
+                ),
+                Text(
+                  S.of(context).emptyStateMsg,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  height: 20,
+                ),
+                Text(
+                  S.of(context).emptyStateDetails,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 
   SizedBox buildErrorLoadWidget(BuildContext context, double heightConstraint, double widthConstraint) =>
       SizedBox(height: heightConstraint,

@@ -110,6 +110,24 @@ class S {
     );
   }
 
+  String get emptyStateMsg {
+    return Intl.message(
+      'Nothing to show',
+      name: 'emptyStateMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get emptyStateDetails {
+    return Intl.message(
+      'Seems that this category is empty.',
+      name: 'emptyStateDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
   String get pageHomeConfirm {
     return Intl.message(
       'Confirm',

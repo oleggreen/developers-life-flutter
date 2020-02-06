@@ -8,6 +8,8 @@
   "autoLoadGifs" : "Auto load all gifs",
   "failToLoadDataMsg" : "Fail to load data",
   "failToLoadDataRecommendation" : "Check your internet connection\n and try to swipe down ↓ to reload.",
+  "emptyStateMsg" : "Nothing to show",
+  "emptyStateDetails" : "Seems that this category is empty.",
 
   "pageHomeConfirm": "Confirm",
   "pageHomeWelcome": "Welcome {name}",

@@ -30,6 +30,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "autoLoadGifs" : MessageLookupByLibrary.simpleMessage("Auto load all gifs"),
     "bestOfAllTime" : MessageLookupByLibrary.simpleMessage("Best of all time"),
     "bestOfTheMonth" : MessageLookupByLibrary.simpleMessage("Best of the Month"),
+    "emptyStateDetails" : MessageLookupByLibrary.simpleMessage("Seems that this category is empty."),
+    "emptyStateMsg" : MessageLookupByLibrary.simpleMessage("Nothing to show"),
     "failToLoadDataMsg" : MessageLookupByLibrary.simpleMessage("Fail to load data"),
     "failToLoadDataRecommendation" : MessageLookupByLibrary.simpleMessage("Check your internet connection\n and try to swipe down ↓ to reload."),
     "favorite" : MessageLookupByLibrary.simpleMessage("Favorite"),
