@@ -19,7 +19,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       gifURL: "http://static.devli.ru/public/images/gifs/201403/821f2338-0908-4c3a-a928-f6b3d0e0a1d1.gif",
       gifSize: 1884193,
       previewURL: "https://static.devli.ru/public/images/previews/201403/aadb74b0-8888-49ad-88ef-bac0ffe998f2.jpg",
-      type: "gif"
+      type: AnimationType.GIF
   );
 
   var routingData = getRoutingData(settings.name);

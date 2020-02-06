@@ -15,6 +15,8 @@ import 'package:tuple/tuple.dart';
 
 import 'package:developerslife_flutter/generated/l10n.dart';
 
+const int ITEMS_PER_PAGE = 5;
+
 /// Assumes the given path is a text-file-asset.
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
@@ -60,8 +62,17 @@ Future<PostResponse> getRandomPosts(RestClient client) async {
 
   var randomItems = await futuresList;
   var filteredItems = randomItems
-      .where((postItem) => postItem.type == "gif")
+      .where((postItem) => postItem.type == AnimationType.GIF)
       .toList();
+
+  if (filteredItems.length < ITEMS_PER_PAGE) {
+    do {
+      var randomPost = await client.getRandomPost();
+      if (randomPost.type == AnimationType.GIF) {
+        filteredItems.add(randomPost);
+      }
+    } while (filteredItems.length < ITEMS_PER_PAGE);
+  }
 
   return PostResponse(result: filteredItems, totalCount: -1);
 }

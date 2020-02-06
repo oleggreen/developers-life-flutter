@@ -2,6 +2,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'PostItem.g.dart';
 
+class AnimationType {
+	static const String COUB = "coub";
+	static const String GIF = "gif";
+}
+
 @JsonSerializable()
 class PostItem {
 
@@ -16,7 +21,7 @@ class PostItem {
   String videoURL;
   String videoPath;
   int videoSize;
-  String type;
+	String type;
   String width;
   String height;
   int commentsCount;
@@ -69,6 +74,4 @@ class PostItem {
 	String toString() {
 		return 'PostItem{id: $id}';
 	}
-
-
 }

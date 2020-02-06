@@ -31,7 +31,6 @@ enum PostListState {
 }
 
 class PostListModel with ChangeNotifier {
-  static const int ITEMS_PER_PAGE = 5;
 
   Category _selectedCategory;
   List<PostItemModel> _items = List();
