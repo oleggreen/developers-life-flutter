@@ -1,3 +1,4 @@
+import 'package:developerslife_flutter/generated/l10n.dart';
 import 'package:developerslife_flutter/main_screen/view/post_list_item.dart';
 import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ class PostListWidget extends StatelessWidget {
               if (index == postListModel.items.length) {
                 if (postListModel.items.length == 0) {
                   if (postListModel.state == PostListState.ERROR) {
-                    return SizedBox(height: heightConstraint, width: widthConstraint, child: Center(child: Text("Some error occured.TODO")));
+                    return buildErrorLoadWidget(context, heightConstraint, widthConstraint);
                   } else {
                     return SizedBox(height: heightConstraint, width: widthConstraint, child: Center(child: Text("Empty state.TODO")));
                   }
@@ -64,4 +65,40 @@ class PostListWidget extends StatelessWidget {
       }),
     );
   }
+
+  SizedBox buildErrorLoadWidget(BuildContext context, double heightConstraint, double widthConstraint) =>
+      SizedBox(height: heightConstraint,
+        width: widthConstraint,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error,
+                  size: 150,
+                  color: Colors.red,
+                ),
+                Container(
+                  height: 20,
+                ),
+                Text(
+                  S.of(context).failToLoadDataMsg,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  height: 20,
+                ),
+                Text(
+                  S.of(context).failToLoadDataRecommendation,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 }

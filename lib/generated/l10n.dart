@@ -92,6 +92,24 @@ class S {
     );
   }
 
+  String get failToLoadDataMsg {
+    return Intl.message(
+      'Fail to load data',
+      name: 'failToLoadDataMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get failToLoadDataRecommendation {
+    return Intl.message(
+      'Check your internet connection\n and try to swipe down ↓ to reload.',
+      name: 'failToLoadDataRecommendation',
+      desc: '',
+      args: [],
+    );
+  }
+
   String get pageHomeConfirm {
     return Intl.message(
       'Confirm',
