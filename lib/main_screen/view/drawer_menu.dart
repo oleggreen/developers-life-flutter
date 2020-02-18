@@ -43,7 +43,7 @@ class MyDrawerWidget extends StatelessWidget {
                 createMenuItem(context, Category.HOT, selectedCategory, Icons.flash_on),
                 Divider(height: 1, color: darkGreyColor),
                 createMenuItem(context, Category.RANDOM, selectedCategory, Icons.autorenew),
-                createMenuItem(context, Category.FAVORITE, selectedCategory, Icons.thumb_up),
+//                createMenuItem(context, Category.FAVORITE, selectedCategory, Icons.thumb_up),
               ],
             ),
           );
