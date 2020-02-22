@@ -119,9 +119,9 @@ class PostListWidgetBuilder {
             ),
             child: Icon(Icons.share, color: curTheme.primaryColor),
             onPressed: () => Share.share(postItem.gifURL),
-//            onLongPress: () {
-//              navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString() });
-//            },
+            onLongPress: () {
+              navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString() });
+            },
             color: curTheme.primaryColorLight,
             textColor: Colors.white,
             splashColor: Colors.white,
