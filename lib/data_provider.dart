@@ -27,7 +27,7 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
 
   if (kIsWeb || Platform.isMacOS) {
     var dataString = await getFileData("assets/best_of_all_time.json");
-//    print("getData:result: " + dataString);
+    print("getData: result: " + dataString);
     PostResponse data = PostResponse.fromJsonMap(json.decode(dataString));
     return Tuple2(pageNumber, data);
 
@@ -43,7 +43,7 @@ Future<Tuple2<int, PostResponse>> getData(Category category, int pageNumber) asy
       response = await client.getPosts(getUrlByCategory(category), pageNumber);
     }
 
-//    print("getData:result: ${response.result.toString()}");
+    print("getData: result: ${response.result.toString()}");
     return Tuple2(pageNumber, response);
   }
 }

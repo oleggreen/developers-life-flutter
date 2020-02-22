@@ -21,22 +21,22 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: Provider.of<SelectedCategory>(context, listen: false).loadInitialState(),
+        future: Provider.of<CategoryModel>(context, listen: false).loadInitialState(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Consumer<SelectedCategory>(
-                builder: (context, selectedCategoryModel, _) => buildScaffold(context, selectedCategoryModel.selectedCategory));
+            return Consumer<CategoryModel>(
+                builder: (context, categoryModel, _) => buildScaffold(context, categoryModel));
           } else {
             return Container();
           }
         });
   }
 
-  Scaffold buildScaffold(BuildContext context, Category selectedCategory) {
+  Scaffold buildScaffold(BuildContext context, CategoryModel categoryModel) {
     return Scaffold(
       appBar: AppBar(
         brightness: Brightness.dark,
-        title: Text(getTitleTextByCategory(selectedCategory, context), style: TextStyle(color: Colors.white)),
+        title: Text(getTitleTextByCategory(categoryModel.selectedCategory, context), style: TextStyle(color: Colors.white)),
         iconTheme: new IconThemeData(color: Colors.white),
         actions: [createOverflowMenu()],
       ),
@@ -44,8 +44,10 @@ class MyHomePage extends StatelessWidget {
       body: Container(
         color: lightGreyColor,
         child: Center(
-          child: Consumer<SelectedCategory>(builder: (context, selectedCategory, _) {
+          child: Consumer<CategoryModel>(builder: (context, selectedCategory, _) {
             var postListModel = Provider.of<PostListModel>(context, listen: false);
+
+            print("buildScaffold: result: ${selectedCategory.selectedCategory.toString()}");
             postListModel.loadCategory(selectedCategory.selectedCategory);
 
             return PostListWidget();

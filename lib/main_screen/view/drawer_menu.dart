@@ -11,7 +11,7 @@ class MyDrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SelectedCategory>(
+    return Consumer<CategoryModel>(
         builder: (context, selectedCategoryModel, _) {
           var selectedCategory = selectedCategoryModel.selectedCategory;
           return Drawer(
@@ -67,7 +67,7 @@ class MyDrawerWidget extends StatelessWidget {
 //            Fluttertoast.showToast(msg: "Selected: " + titleTextByCategory);
             Navigator.pop(context);
 
-            var viewModel = Provider.of<SelectedCategory>(context, listen: false);
+            var viewModel = Provider.of<CategoryModel>(context, listen: false);
             viewModel.selectCategory(category);
           },
         ));

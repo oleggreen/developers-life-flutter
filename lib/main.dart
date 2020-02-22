@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
               create: (_) => PostListModel(),
             ),
             ChangeNotifierProvider(
-              create: (_) => SelectedCategory(),
+              create: (_) => CategoryModel(),
             ),
             ChangeNotifierProvider(
               create: (_) => UserPrefs(),

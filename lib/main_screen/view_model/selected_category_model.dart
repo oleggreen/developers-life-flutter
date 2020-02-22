@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../model/categories.dart';
 
-class SelectedCategory with ChangeNotifier {
+class CategoryModel with ChangeNotifier {
   final selectedCategoryTag = 'selectedCategory';
 
   Category _selectedCategory = Category.LATEST;
