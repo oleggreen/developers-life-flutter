@@ -41,9 +41,10 @@ class PostListModel with ChangeNotifier {
   List<PostItemModel> get items => _items;
 
   Future loadCategory(Category selectedCategory) async {
+    print("PostListModel: loadCategory: $selectedCategory");
     _items.clear();
     state = PostListState.LOADING;
-    notifyListeners();
+//    notifyListeners();
 
     this._selectedCategory = selectedCategory;
     getData(_selectedCategory, 0).then((result) {
@@ -51,8 +52,10 @@ class PostListModel with ChangeNotifier {
       _totalCount = result.item2.totalCount;
       state = PostListState.IDLE;
       notifyListeners();
+      print("PostListModel: loadCategory: getData done");
 
     }).catchError((error) {
+      print("PostListModel: loadCategory: catchError $error");
       print(error);
       state = PostListState.ERROR;
       notifyListeners();

@@ -25,18 +25,21 @@ class MyHomePage extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Consumer<CategoryModel>(
-                builder: (context, categoryModel, _) => buildScaffold(context, categoryModel));
+                builder: (context, categoryModel, _) => buildScaffold(context, categoryModel.selectedCategory));
           } else {
             return Container();
           }
         });
   }
 
-  Scaffold buildScaffold(BuildContext context, CategoryModel categoryModel) {
+  Scaffold buildScaffold(BuildContext context, Category selectedCategory) {
+    var postListModel = Provider.of<PostListModel>(context, listen: false);
+    postListModel.loadCategory(selectedCategory);
+
     return Scaffold(
       appBar: AppBar(
         brightness: Brightness.dark,
-        title: Text(getTitleTextByCategory(categoryModel.selectedCategory, context), style: TextStyle(color: Colors.white)),
+        title: Text(getTitleTextByCategory(selectedCategory, context), style: TextStyle(color: Colors.white)),
         iconTheme: new IconThemeData(color: Colors.white),
         actions: [createOverflowMenu()],
       ),
@@ -44,14 +47,7 @@ class MyHomePage extends StatelessWidget {
       body: Container(
         color: lightGreyColor,
         child: Center(
-          child: Consumer<CategoryModel>(builder: (context, selectedCategory, _) {
-            var postListModel = Provider.of<PostListModel>(context, listen: false);
-
-            print("buildScaffold: result: ${selectedCategory.selectedCategory.toString()}");
-            postListModel.loadCategory(selectedCategory.selectedCategory);
-
-            return PostListWidget();
-          }),
+          child: PostListWidget()
         ),
       ),
     );

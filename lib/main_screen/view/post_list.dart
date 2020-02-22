@@ -8,6 +8,7 @@ class PostListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<PostListModel>(builder: (context, postListModel, _) {
+      print("PostListWidget: consumer changes in postListModel: ${postListModel.items.length}");
       if (postListModel.items.isEmpty && postListModel.state == PostListState.LOADING) {
         return Center(child: CircularProgressIndicator());
       } else {
