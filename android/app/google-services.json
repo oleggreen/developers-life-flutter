@@ -37,6 +37,35 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:980185506886:android:f0b85d45d10a8047a61647",
+        "android_client_info": {
+          "package_name": "com.marchelo.developerslife_flutter.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "980185506886-9uo7ia1hqrhqo0plg1enj744kips58qb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB3JntuyT0e04Xc1AxORaJgNlCguRr38w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "980185506886-9uo7ia1hqrhqo0plg1enj744kips58qb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:980185506886:android:f24ea536f1ca4f7ca61647",
         "android_client_info": {
           "package_name": "com.marchelo.developerslite"
