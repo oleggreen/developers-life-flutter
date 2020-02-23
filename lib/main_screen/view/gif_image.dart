@@ -5,6 +5,35 @@ import 'package:provider/provider.dart';
 class GifImageWidget extends StatefulWidget {
   @override
   _GifImageWidgetState createState() => _GifImageWidgetState();
+
+  static Image buildGifImageItself(String gifUrl) {
+    return Image.network(
+      gifUrl,
+      height: 276,
+      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
+        if (loadingProgress == null)
+          return Padding(
+            padding: EdgeInsets.all(2.0),
+            child: child,
+          );
+
+        return Container(
+          height: 280,
+          width: double.infinity,
+          alignment: Alignment.topCenter,
+          decoration: BoxDecoration(color: Colors.transparent),
+          child: Container(
+            height: 3.0,
+            child: LinearProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
+                  : null,
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _GifImageWidgetState extends State<GifImageWidget> {
@@ -47,32 +76,7 @@ class _GifImageWidgetState extends State<GifImageWidget> {
 
   Widget loadGifOrEmpty(PostItemModel postItemModel) {
     if (postItemModel.activated) {
-      return Image.network(
-        postItemModel.postItem.gifURL,
-        height: 276,
-        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-          if (loadingProgress == null)
-            return Padding(
-              padding: EdgeInsets.all(2.0),
-              child: child,
-            );
-
-          return Container(
-            height: 280,
-            width: double.infinity,
-            alignment: Alignment.topCenter,
-            decoration: BoxDecoration(color: Colors.transparent),
-            child: Container(
-              height: 3.0,
-              child: LinearProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
-                    : null,
-              ),
-            ),
-          );
-        },
-      );
+      return GifImageWidget.buildGifImageItself(postItemModel.postItem.gifURL);
     } else {
       return Container(
         height: 280,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:developerslife_flutter/data_provider.dart';
+import 'package:developerslife_flutter/main_screen/view/gif_image.dart';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
@@ -40,7 +41,7 @@ class SecondRoute extends StatelessWidget {
               return buildPostItemBody(snapshot.data);
             }
           } else {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }
         },
       ),
@@ -49,7 +50,7 @@ class SecondRoute extends StatelessWidget {
 
   Widget buildPostItemBody(PostItem postItem) {
     return Container(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(10),
         child: Column(
           children: <Widget>[
             Text(
@@ -62,17 +63,25 @@ class SecondRoute extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.topCenter,
-              child: Hero(
-                  tag: postItem.previewURL,
-                  child: Image.network(
-                    postItem.previewURL,
-                    frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
-                      return Padding(
-                        padding: EdgeInsets.all(2.0),
-                        child: child,
-                      );
-                    },
-                  )),
+              child: Stack(
+                  fit: StackFit.loose,
+                  children: [
+                    Hero(
+                        tag: postItem.previewURL,
+                        child: Image.network(
+                          postItem.previewURL,
+                          height: 276,
+                          frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
+                            return Padding(
+                              padding: EdgeInsets.all(2.0),
+                              child: child,
+                            );
+                          },
+                        ),
+                    ),
+                    GifImageWidget.buildGifImageItself(postItem.gifURL),
+                  ]
+              ),
             )
 
           ],
@@ -80,6 +89,11 @@ class SecondRoute extends StatelessWidget {
       );
   }
 }
+
+
+
+
+
 
 class DetailsRouteArguments {
   final int id;
