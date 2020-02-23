@@ -11,7 +11,7 @@
 
     <application
         android:name=".DevLifeFlutterApp"
-        android:label="Developers Life"
+        android:label="@string/application_name"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
