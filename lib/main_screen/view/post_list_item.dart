@@ -120,7 +120,12 @@ class PostListWidgetBuilder {
             child: Icon(Icons.share, color: curTheme.primaryColor),
             onPressed: () => Share.share(postItem.gifURL),
             onLongPress: () {
-              navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString() });
+              if (kIsWeb) {
+                navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString() });
+
+              } else {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => SecondRoute(postItem.id, postItem)));
+              }
             },
             color: curTheme.primaryColorLight,
             textColor: Colors.white,

@@ -16,9 +16,11 @@ class SecondRoute extends StatelessWidget {
 
   Future<PostItem> _getPostDetails() async {
     if (postItem != null) {
+      print("_getPostDetails: postItem exists");
       return postItem;
 
     } else {
+      print("_getPostDetails: postItem null. Loading postItem");
       return await getPostDetails(postId);
     }
   }
@@ -50,7 +52,7 @@ class SecondRoute extends StatelessWidget {
 
   Widget buildPostItemBody(PostItem postItem) {
     return Container(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(15),
         child: Column(
           children: <Widget>[
             Text(
@@ -61,12 +63,17 @@ class SecondRoute extends StatelessWidget {
                   color: darkGreyColor
               ),
             ),
+            Container(height: 20,),
             Align(
               alignment: Alignment.topCenter,
-              child: Stack(
-                  fit: StackFit.loose,
-                  children: [
-                    Hero(
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.black
+                ),
+                child: Stack(
+                    fit: StackFit.loose,
+                    children: [
+                      Hero(
                         tag: postItem.previewURL,
                         child: Image.network(
                           postItem.previewURL,
@@ -78,9 +85,10 @@ class SecondRoute extends StatelessWidget {
                             );
                           },
                         ),
-                    ),
-                    GifImageWidget.buildGifImageItself(postItem.gifURL),
-                  ]
+                      ),
+                      GifImageWidget.buildGifImageItself(postItem.gifURL),
+                    ]
+                ),
               ),
             )
 
