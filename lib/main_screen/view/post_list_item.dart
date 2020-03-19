@@ -62,7 +62,8 @@ class PostListWidgetBuilder {
                             children: [
                               buildPostInfoWidget(context, postItem, curTheme),
                               buildSharePostLinkButton(curTheme, postItem),
-                              buildShareGifLinkButton(context, curTheme, postItem),
+                              buildShareGifLinkButton(curTheme, postItem),
+                              buildOpenDetailsButton(context, curTheme, postItem),
                             ])),
                   ])));
   }
@@ -104,40 +105,6 @@ class PostListWidgetBuilder {
     );
   }
 
-  static Widget buildShareGifLinkButton(BuildContext context, ThemeData curTheme, PostItem postItem) {
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      return Container(
-        decoration: BoxDecoration(
-            color: curTheme.primaryColor, borderRadius: BorderRadius.only(bottomRight: Radius.circular(7))),
-        padding: EdgeInsets.only(top: 2, bottom: 2, left: 1, right: 2),
-        child: ButtonTheme(
-          minWidth: 20.0,
-          height: 10.0,
-          child: FlatButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(bottomRight: Radius.circular(5)),
-            ),
-            child: Icon(Icons.share, color: curTheme.primaryColor),
-            onPressed: () => Share.share(postItem.gifURL),
-            onLongPress: () {
-              if (kIsWeb) {
-                navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString() });
-
-              } else {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => SecondRoute(postItem.id, postItem)));
-              }
-            },
-            color: curTheme.primaryColorLight,
-            textColor: Colors.white,
-            splashColor: Colors.white,
-          ),
-        ),
-      );
-    } else {
-      return Container();
-    }
-  }
-
   static Widget buildSharePostLinkButton(ThemeData curTheme, PostItem postItem) {
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       return Container(
@@ -160,5 +127,56 @@ class PostListWidgetBuilder {
     } else {
       return Container();
     }
+  }
+
+  static Widget buildShareGifLinkButton(ThemeData curTheme, PostItem postItem) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      return Container(
+        decoration: BoxDecoration(
+            color: curTheme.primaryColor),
+        padding: EdgeInsets.only(top: 2, bottom: 2, left: 1, right: 0),
+        child: ButtonTheme(
+          minWidth: 20.0,
+          height: 10.0,
+          child: FlatButton(
+            child: Icon(Icons.share, color: curTheme.primaryColor),
+            onPressed: () => Share.share(postItem.gifURL),
+            color: curTheme.primaryColorLight,
+            textColor: Colors.white,
+            splashColor: Colors.white,
+          ),
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  static Widget buildOpenDetailsButton(BuildContext context, ThemeData curTheme, PostItem postItem) {
+    return Container(
+      decoration: BoxDecoration(
+          color: curTheme.primaryColor, borderRadius: BorderRadius.only(bottomRight: Radius.circular(7))),
+      padding: EdgeInsets.only(top: 2, bottom: 2, left: 2, right: 2),
+      child: ButtonTheme(
+        minWidth: 20.0,
+        height: 10.0,
+        child: FlatButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(bottomRight: Radius.circular(5)),
+          ),
+          child: Icon(Icons.open_in_new, color: curTheme.primaryColor),
+          onPressed: () {
+            if (kIsWeb) {
+              navigationService.navigateTo(detailIdRoute, queryParams: {'id': postItem.id.toString()});
+            } else {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SecondRoute(postItem.id, postItem)));
+            }
+          },
+          color: curTheme.primaryColorLight,
+          textColor: Colors.white,
+          splashColor: Colors.white,
+        ),
+      ),
+    );
   }
 }
