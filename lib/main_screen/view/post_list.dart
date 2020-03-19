@@ -43,6 +43,7 @@ class PostListWidget extends StatelessWidget {
                   color: Colors.transparent,
                 ),
             itemBuilder: (BuildContext context, int index) {
+              print("itemBuilder: $index");
               if (index == postListModel.items.length) {
                 if (postListModel.items.length == 0) {
                   if (postListModel.state == PostListState.ERROR) {
