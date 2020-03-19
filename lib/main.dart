@@ -1,6 +1,7 @@
 import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
 import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
 import 'package:developerslife_flutter/main_screen/view_model/user_prefs_model.dart';
+import 'package:developerslife_flutter/model/categories.dart';
 import 'package:developerslife_flutter/routing/navigation_service.dart';
 import 'package:developerslife_flutter/routing/router.dart';
 import 'package:flutter/cupertino.dart';
@@ -58,16 +59,20 @@ class MyApp extends StatelessWidget {
       home: MultiProvider(
           providers: [
             ChangeNotifierProvider(
-              create: (_) => PostListModel(),
-            ),
-            ChangeNotifierProvider(
               create: (_) => CategoryModel(),
             ),
             ChangeNotifierProvider(
               create: (_) => UserPrefs(),
             ),
+            ChangeNotifierProxyProvider<CategoryModel, PostListModel>(
+              create: (_) => PostListModel(),
+              update: (context, categoryModel, postListModel) {
+                postListModel.loadCategory(categoryModel.selectedCategory);
+                return postListModel;
+              },
+            ),
           ],
-          child: MyHomePage(title: "Developers Lite")),
+          child: MyHomePage()),
 
       initialRoute: homeRoute,
       navigatorKey: navigationService.navigatorKey,

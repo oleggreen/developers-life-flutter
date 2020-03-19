@@ -49,6 +49,7 @@ class PostListWidget extends StatelessWidget {
                   if (postListModel.state == PostListState.ERROR) {
                     return buildErrorLoadWidget(context, heightConstraint, widthConstraint);
                   } else {
+                    print("buildEmptyStateWidget: $index");
                     return buildEmptyStateWidget(context, heightConstraint, widthConstraint);
                   }
                 } else {

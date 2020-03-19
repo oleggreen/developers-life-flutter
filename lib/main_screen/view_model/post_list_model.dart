@@ -38,33 +38,18 @@ class PostListModel with ChangeNotifier {
   bool _activated = false;
 
   PostListState state;
+
   List<PostItemModel> get items => _items;
 
   Future loadCategory(Category selectedCategory) async {
-    print("PostListModel: loadCategory: $selectedCategory");
-    _items.clear();
-    state = PostListState.LOADING;
-//    notifyListeners();
-
     this._selectedCategory = selectedCategory;
-    getData(_selectedCategory, 0).then((result) {
-      _items = result.item2.result.map((item) => PostItemModel(item, _activated)).toList();
-      _totalCount = result.item2.totalCount;
-      state = PostListState.IDLE;
-      notifyListeners();
-      print("PostListModel: loadCategory: getData done");
-
-    }).catchError((error) {
-      print("PostListModel: loadCategory: catchError $error");
-      print(error);
-      state = PostListState.ERROR;
-      notifyListeners();
-    });
+    reLoadCurrentCategory();
   }
 
   Future reLoadCurrentCategory() async {
     _items.clear();
     state = PostListState.LOADING;
+    notifyListeners();
 
     getData(_selectedCategory, 0).then((result) {
       _items = result.item2.result.map((item) => PostItemModel(item, _activated)).toList();
