@@ -1,7 +1,6 @@
+import 'package:developerslife_flutter/clean/domain/entities/categories.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../model/categories.dart';
 
 class CategoryModel with ChangeNotifier {
   final selectedCategoryTag = 'selectedCategory';

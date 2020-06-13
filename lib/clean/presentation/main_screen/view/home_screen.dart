@@ -1,14 +1,14 @@
-import 'package:developerslife_flutter/data_provider.dart';
-import 'package:developerslife_flutter/main_screen/view/post_list.dart';
-import 'package:developerslife_flutter/main_screen/view/main_menu.dart';
-import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
-import 'package:developerslife_flutter/model/categories.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view/main_menu.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view/post_list.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view_model/selected_category_model.dart';
+import 'package:developerslife_flutter/clean/data/data_provider.dart';
+import 'package:developerslife_flutter/clean/domain/entities/categories.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
-import 'package:developerslife_flutter/main.dart';
+import 'package:developerslife_flutter/clean/presentation/main.dart';
 
 import 'drawer_menu.dart';
 

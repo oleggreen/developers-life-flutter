@@ -1,4 +1,4 @@
-import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view_model/post_list_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

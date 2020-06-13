@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:developerslife_flutter/network/model/PostItem.dart';
+import 'package:developerslife_flutter/clean/data/model/PostItem.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'network/RestService.dart';
-import 'model/categories.dart';
+import 'source/rest/RestService.dart';
+import '../domain/entities/categories.dart';
 import 'package:dio/dio.dart';
-import 'network/model/PostResponse.dart';
+import 'model/PostResponse.dart';
 
 import 'package:tuple/tuple.dart';
 
@@ -101,7 +101,6 @@ String getUrlByCategory(Category category) {
   }
 }
 
-// ignore: missing_return
 String getTitleTextByCategory(Category category, BuildContext context) {
   switch(category) {
     case Category.LATEST: return S.of(context).latest;
@@ -110,5 +109,6 @@ String getTitleTextByCategory(Category category, BuildContext context) {
     case Category.HOT: return S.of(context).hot;
     case Category.RANDOM: return S.of(context).random;
     case Category.FAVORITE: return S.of(context).favorite;
+    default: return "unknown";
   }
 }

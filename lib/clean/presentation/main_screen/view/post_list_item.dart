@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:developerslife_flutter/main.dart';
-import 'package:developerslife_flutter/main_screen/view/gif_image.dart';
-import 'package:developerslife_flutter/network/model/PostItem.dart';
-import 'package:developerslife_flutter/routing/router.dart';
-import 'package:developerslife_flutter/second_screen.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view/gif_image.dart';
+import 'package:developerslife_flutter/clean/presentation/main.dart';
+import 'package:developerslife_flutter/clean/data/model/PostItem.dart';
+import 'package:developerslife_flutter/clean/presentation/routing/router.dart';
+import 'package:developerslife_flutter/clean/presentation/details_screen/second_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';

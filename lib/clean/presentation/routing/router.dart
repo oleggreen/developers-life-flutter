@@ -1,8 +1,8 @@
+import 'package:developerslife_flutter/clean/presentation/main_screen/view/home_screen.dart';
 import 'package:developerslife_flutter/extensions/string_extensions.dart';
-import 'package:developerslife_flutter/main_screen/view/home_screen.dart';
-import 'package:developerslife_flutter/network/model/PostItem.dart';
-import 'package:developerslife_flutter/second_screen.dart';
-import 'package:developerslife_flutter/routing/screens/view_404.dart';
+import 'package:developerslife_flutter/clean/data/model/PostItem.dart';
+import 'package:developerslife_flutter/clean/presentation/details_screen/second_screen.dart';
+import 'package:developerslife_flutter/clean/presentation/routing/screens/view_404.dart';
 import 'package:flutter/material.dart';
 
 const String homeRoute = '/';

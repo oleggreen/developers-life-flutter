@@ -1,11 +1,10 @@
 import 'dart:convert';
 
-import 'package:developerslife_flutter/data_provider.dart';
-import 'package:developerslife_flutter/main_screen/view/gif_image.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view/gif_image.dart';
+import 'package:developerslife_flutter/clean/data/data_provider.dart';
+import 'package:developerslife_flutter/clean/presentation/main.dart';
+import 'package:developerslife_flutter/clean/data/model/PostItem.dart';
 import 'package:flutter/material.dart';
-
-import 'main.dart';
-import 'network/model/PostItem.dart';
 
 class SecondRoute extends StatelessWidget {
 

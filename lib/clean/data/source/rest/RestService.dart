@@ -1,8 +1,8 @@
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
 
-import 'model/PostItem.dart';
-import 'model/PostResponse.dart';
+import '../../model/PostItem.dart';
+import '../../model/PostResponse.dart';
 
 part 'RestService.g.dart';
 

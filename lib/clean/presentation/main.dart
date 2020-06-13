@@ -1,9 +1,9 @@
-import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
-import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
-import 'package:developerslife_flutter/main_screen/view_model/user_prefs_model.dart';
-import 'package:developerslife_flutter/model/categories.dart';
-import 'package:developerslife_flutter/routing/navigation_service.dart';
-import 'package:developerslife_flutter/routing/router.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view/home_screen.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view_model/post_list_model.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view_model/selected_category_model.dart';
+import 'package:developerslife_flutter/clean/presentation/main_screen/view_model/user_prefs_model.dart';
+import 'package:developerslife_flutter/clean/presentation/routing/navigation_service.dart';
+import 'package:developerslife_flutter/clean/presentation/routing/router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,12 +11,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
-import 'main_screen/view/home_screen.dart';
 import 'package:developerslife_flutter/generated/l10n.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 var greyColor = Color(0xff949494);
 var lightGreyColor = Color(0xffcfcfcf);

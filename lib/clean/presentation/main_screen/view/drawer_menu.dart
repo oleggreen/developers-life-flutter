@@ -1,10 +1,10 @@
+import 'package:developerslife_flutter/clean/presentation/main_screen/view_model/selected_category_model.dart';
 import 'package:developerslife_flutter/generated/l10n.dart';
-import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
-import 'package:developerslife_flutter/model/categories.dart';
+import 'package:developerslife_flutter/clean/domain/entities/categories.dart';
 import 'package:flutter/material.dart';
 
-import 'package:developerslife_flutter/data_provider.dart';
-import 'package:developerslife_flutter/main.dart';
+import 'package:developerslife_flutter/clean/data/data_provider.dart';
+import 'package:developerslife_flutter/clean/presentation/main.dart';
 import 'package:provider/provider.dart';
 
 class MyDrawerWidget extends StatelessWidget {

@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'package:developerslife_flutter/model/categories.dart';
-import 'package:developerslife_flutter/data_provider.dart';
-import 'package:developerslife_flutter/network/model/PostItem.dart';
+import 'package:developerslife_flutter/clean/domain/entities/categories.dart';
+import 'package:developerslife_flutter/clean/data/data_provider.dart';
+import 'package:developerslife_flutter/clean/data/model/PostItem.dart';
 
 class PostItemModel with ChangeNotifier {
 
@@ -72,8 +72,7 @@ class PostListModel with ChangeNotifier {
     state = PostListState.LOADING;
     notifyListeners();
 
-    getData(_selectedCategory, pageToLoad)
-        .then((value) {
+    getData(_selectedCategory, pageToLoad).then((value) {
       var pageNumberLoaded = value.item1;
       var pageItemsLoaded = value.item2;
 
