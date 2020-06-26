@@ -9,25 +9,23 @@ import 'intl/messages_all.dart';
 // **************************************************************************
 
 class S {
-  S(this.localeName);
+  S();
   
   static const AppLocalizationDelegate delegate =
     AppLocalizationDelegate();
 
   static Future<S> load(Locale locale) {
-    final String name = locale.countryCode.isEmpty ? locale.languageCode : locale.toString();
+    final String name = (locale.countryCode?.isEmpty ?? false) ? locale.languageCode : locale.toString();
     final String localeName = Intl.canonicalizedLocale(name);
     return initializeMessages(localeName).then((_) {
       Intl.defaultLocale = localeName;
-      return S(localeName);
+      return S();
     });
   } 
 
   static S of(BuildContext context) {
     return Localizations.of<S>(context, S);
   }
-
-  final String localeName;
 
   String get appName {
     return Intl.message(
@@ -200,7 +198,7 @@ class S {
     );
   }
 
-  String pageHomeWelcome(dynamic name) {
+  String pageHomeWelcome(Object name) {
     return Intl.message(
       'Welcome $name',
       name: 'pageHomeWelcome',
@@ -209,7 +207,7 @@ class S {
     );
   }
 
-  String pageHomeWelcomeGender(dynamic gender) {
+  String pageHomeWelcomeGender(String gender) {
     return Intl.gender(
       gender,
       male: 'Hi man!',
@@ -221,7 +219,7 @@ class S {
     );
   }
 
-  String pageNotificationsCount(dynamic howMany) {
+  String pageNotificationsCount(num howMany) {
     return Intl.plural(
       howMany,
       one: '1 message',
@@ -247,7 +245,9 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
 
   List<Locale> get supportedLocales {
     return const <Locale>[
-      Locale('uk', ''), Locale('en', ''), Locale('ru', ''),
+      Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'ru'),
+      Locale.fromSubtags(languageCode: 'uk'),
     ];
   }
 

@@ -1,7 +1,6 @@
 import 'package:developerslife_flutter/main_screen/view_model/post_list_model.dart';
 import 'package:developerslife_flutter/main_screen/view_model/selected_category_model.dart';
 import 'package:developerslife_flutter/main_screen/view_model/user_prefs_model.dart';
-import 'package:developerslife_flutter/model/categories.dart';
 import 'package:developerslife_flutter/routing/navigation_service.dart';
 import 'package:developerslife_flutter/routing/router.dart';
 import 'package:flutter/cupertino.dart';
