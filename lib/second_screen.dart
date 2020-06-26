@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:developerslife_flutter/data_provider.dart';
+import 'package:developerslife_flutter/generated/l10n.dart';
 import 'package:developerslife_flutter/main_screen/view/gif_image.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,7 @@ class SecondRoute extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         brightness: Brightness.dark,
-        title: Text("Post " + postId.toString(), style: TextStyle(color: Colors.white)),
+        title: Text(S.of(context).postDetails, style: TextStyle(color: Colors.white)),
         iconTheme: new IconThemeData(color: Colors.white),
       ),
       body: FutureBuilder<PostItem>(
@@ -63,7 +64,7 @@ class SecondRoute extends StatelessWidget {
                   color: darkGreyColor
               ),
             ),
-            Container(height: 20,),
+            SizedBox(height: 20,),
             Align(
               alignment: Alignment.topCenter,
               child: Container(
@@ -78,6 +79,7 @@ class SecondRoute extends StatelessWidget {
                         child: Image.network(
                           postItem.previewURL,
                           height: 276,
+                          width: double.infinity,
                           frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) {
                             return Padding(
                               padding: EdgeInsets.all(2.0),

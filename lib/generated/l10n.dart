@@ -238,6 +238,15 @@ class S {
       args: [],
     );
   }
+
+  String get postDetails {
+    return Intl.message(
+      'Post details',
+      name: 'postDetails',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -47,6 +47,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pageHomeWelcomeGender" : m1,
     "pageNotificationsCount" : m2,
     "pageNotificationsCount2" : MessageLookupByLibrary.simpleMessage("Yes"),
+    "postDetails" : MessageLookupByLibrary.simpleMessage("Post details"),
     "random" : MessageLookupByLibrary.simpleMessage("Random"),
     "ratingLabel" : MessageLookupByLibrary.simpleMessage("Rating: "),
     "retry" : MessageLookupByLibrary.simpleMessage("Retry")

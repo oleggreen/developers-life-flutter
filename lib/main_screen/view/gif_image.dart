@@ -10,6 +10,7 @@ class GifImageWidget extends StatefulWidget {
     return Image.network(
       gifUrl,
       height: 276,
+      width: double.infinity,
       loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
         if (loadingProgress == null)
           return Padding(
